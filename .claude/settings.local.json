@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/c/xampp/php/php.exe -r ':*)",
+      "Bash(schtasks /Create /TN \"XAMPP MySQL PID Cleanup\" /TR \"C:\\\\\\\\xampp\\\\\\\\mysql_pid_cleanup.bat\" /SC ONSTART /RU SYSTEM /RL HIGHEST /F)",
+      "Bash(cmd.exe /c 'schtasks /Create /TN \"XAMPP MySQL PID Cleanup\" /TR \"C:\\\\\\\\xampp\\\\\\\\mysql_pid_cleanup.bat\" /SC ONSTART /RU SYSTEM /RL HIGHEST /F')",
+      "Bash(powershell.exe -Command ':*)",
+      "Bash(./mysql.exe -u root -e \"DESCRIBE smatex2.quotations;\")",
+      "Bash(./mysql.exe -u root -e \"ALTER TABLE smatex2.quotations ADD COLUMN terms_conditions TEXT NULL AFTER status;\")",
+      "Bash(./mysql.exe -u root -e \"SELECT setting_key, setting_value FROM smatex2.settings WHERE setting_key LIKE '%bank%';\")",
+      "Bash(./mysql.exe -u root -e \"SELECT setting_key FROM smatex2.settings;\")",
+      "Bash(./mysql.exe -u root -e \"INSERT INTO smatex2.settings \\(setting_key, setting_value\\) VALUES \\('bank_details', 'Bank: Mashreq Bank\\\\nCompany Name: SMATFLIX TECHNOLOGIES FZCO\\\\nAccount No: 019101904752\\\\nIBAN: AE080330000019101904752'\\);\")",
+      "Bash(./mysql.exe -u root -e \"SELECT setting_key, setting_value FROM smatex2.settings WHERE setting_key='bank_details';\")",
+      "Bash(./mysql.exe -u root -e \"UPDATE smatex2.settings SET setting_value = CONCAT\\('Bank: Mashreq Bank', CHAR\\(10\\), 'Company Name: SMATFLIX TECHNOLOGIES FZCO', CHAR\\(10\\), 'Account No: 019101904752', CHAR\\(10\\), 'IBAN: AE080330000019101904752'\\) WHERE setting_key = 'bank_details';\")",
+      "Bash(c:/xampp/mysql/bin/mysql.exe -u root smatex2 -e ':*)",
+      "Bash(c:/xampp/mysql/bin/mysql.exe -u root smatex2 -e \"SHOW TABLES LIKE 'employees'; DESCRIBE employees;\")",
+      "Bash(c:/xampp/mysql/bin/mysql.exe -u root smatex2 -e \"DESCRIBE salary_payments;\")"
+    ],
+    "additionalDirectories": [
+      "c:\\xampp"
+    ]
+  }
+}
