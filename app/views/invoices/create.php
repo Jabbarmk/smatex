@@ -7,11 +7,29 @@
             <div class="card-body">
                 <form action="<?= BASE_URL ?>invoices/store" method="POST">
                     
+                    <!-- Load from Quotation -->
+                    <?php if (!empty($quotations)): ?>
+                    <div class="row mb-4 pb-3 border-bottom">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Load from Quotation <span class="text-info">(optional)</span></label>
+                            <select id="quotation-select" class="form-select bg-light border-0">
+                                <option value="">-- Select a Quotation --</option>
+                                <?php foreach ($quotations as $q): ?>
+                                    <option value="<?= $q['id'] ?>"><?= htmlspecialchars($q['quotation_no']) ?> &mdash; <?= htmlspecialchars($q['lead_name'] . ' (' . $q['company_name'] . ')') ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <span class="text-muted small" id="quotation-load-msg"></span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Top Section -->
                     <div class="row mb-4">
                         <div class="col-md-4">
                             <label class="form-label text-muted">Client / Lead</label>
-                            <select name="lead_id" class="form-select bg-light border-0" required>
+                            <select name="lead_id" id="lead-select" class="form-select bg-light border-0" required>
                                 <option value="">Select a Client...</option>
                                 <?php foreach ($leads as $lead): ?>
                                     <option value="<?= $lead['id'] ?>"><?= $lead['lead_name'] ?> (<?= $lead['company_name'] ?>)</option>
@@ -244,5 +262,95 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Run once
     calcTotal();
+
+    // ── Load from Quotation ──
+    const quotationSelect = document.getElementById('quotation-select');
+    if (quotationSelect) {
+        quotationSelect.addEventListener('change', function () {
+            const qid = this.value;
+            if (!qid) return;
+
+            const msg = document.getElementById('quotation-load-msg');
+            if (msg) msg.textContent = 'Loading...';
+
+            fetch('<?= BASE_URL ?>invoices/getQuotation/' + qid)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        if (msg) msg.textContent = 'Error: ' + data.error;
+                        return;
+                    }
+
+                    const q = data.quotation;
+                    const items = data.items;
+
+                    // Set lead
+                    const leadSel = document.getElementById('lead-select');
+                    if (leadSel && q.lead_id) {
+                        leadSel.value = q.lead_id;
+                    }
+
+                    // Set tax
+                    const taxCheck = document.getElementById('tax-check');
+                    if (taxCheck) {
+                        taxCheck.checked = parseFloat(q.tax_percentage) > 0;
+                    }
+
+                    // Clear existing item rows and rebuild
+                    container.innerHTML = '';
+
+                    const buildRow = (item) => {
+                        const firstRow = document.createElement('div');
+                        firstRow.className = 'row g-2 mb-2 item-row';
+                        firstRow.innerHTML = `
+                            <div class="col-md-4">
+                                <label class="small text-muted">Service / Item</label>
+                                <input class="form-control" list="revenueTypes" name="item_name[]" placeholder="Select or type..." value="${escHtml(item.item_name || '')}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small text-muted">Description</label>
+                                <textarea name="description[]" class="form-control" rows="3" placeholder="Details...">${escHtml(item.description || '')}</textarea>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="small text-muted">Qty</label>
+                                <input type="number" name="qty[]" class="form-control" value="${parseFloat(item.qty) || 1}" min="1">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="small text-muted">Price</label>
+                                <input type="number" name="unit_price[]" class="form-control" value="${parseFloat(item.unit_price) || 0}" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="fas fa-times"></i></button>
+                            </div>`;
+                        return firstRow;
+                    };
+
+                    if (items && items.length > 0) {
+                        items.forEach(item => {
+                            const row = buildRow(item);
+                            container.appendChild(row);
+                            attachRowEvents(row);
+                        });
+                    } else {
+                        // Add a blank row if quotation has no items
+                        addBtn.click();
+                    }
+
+                    calcTotal();
+
+                    if (msg) msg.textContent = 'Quotation data loaded successfully.';
+                    setTimeout(() => { if (msg) msg.textContent = ''; }, 3000);
+                })
+                .catch(() => {
+                    if (msg) msg.textContent = 'Failed to load quotation data.';
+                });
+        });
+    }
+
+    function escHtml(str) {
+        const d = document.createElement('div');
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
+    }
 });
 </script>

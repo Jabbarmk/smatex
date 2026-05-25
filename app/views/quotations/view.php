@@ -1,10 +1,10 @@
-<style>
-/* ── Screen ── */
+﻿<style>
+/* â”€â”€ Screen â”€â”€ */
 @media screen {
     .qt-wrapper { max-width: 860px; margin: 0 auto; }
 }
 
-/* ── Base styles ── */
+/* â”€â”€ Base styles â”€â”€ */
 .qt-wrapper        { font-family: 'Inter', sans-serif; font-size: .9rem; }
 .qt-accent         { color: #e8602c; }
 .qt-accent-line    { border-top: 3px solid #e8602c; margin-bottom: 1rem; }
@@ -19,7 +19,7 @@
 .qt-footer-bar { border-top: 1px solid #ddd; padding-top: .55rem; text-align: center; color: #999; font-size: .72rem; }
 .qt-sig-line  { border-top: 1px solid #555; width: 190px; margin-top: 48px; padding-top: 5px; text-align: center; font-size: .82rem; color: #555; }
 
-/* ── Two-column row — works on screen AND in print ── */
+/* â”€â”€ Two-column row â€” works on screen AND in print â”€â”€ */
 .qt-two-col       { display: table; width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 10px 0; }
 .qt-col-left,
 .qt-col-right,
@@ -44,7 +44,7 @@
 .qt-totals-tbl td     { padding: 4px 0; }
 .qt-totals-tbl .qt-dk { color: #6b7280; }
 
-/* ── Print ── */
+/* â”€â”€ Print â”€â”€ */
 @media print {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
@@ -73,7 +73,7 @@
     .qt-table thead   { break-after:  avoid; page-break-after:  avoid; }
     .qt-table tbody tr{ break-inside: avoid; page-break-inside: avoid; }
 
-    /* Terms can flow across pages — just keep orphan lines tidy */
+    /* Terms can flow across pages â€” just keep orphan lines tidy */
     .qt-terms-box          { break-inside: auto; }
     .qt-terms-box div      { orphans: 3; widows: 3; }
 
@@ -105,12 +105,12 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Target Currency</label>
                     <select class="form-select" id="convertCurrency">
-                        <option value="USD" data-symbol="$" data-label="USD">🇺🇸 US Dollar (USD)</option>
-                        <option value="INR" data-symbol="₹" data-label="INR">🇮🇳 Indian Rupee (INR)</option>
-                        <option value="EUR" data-symbol="€" data-label="EUR">🇪🇺 Euro (EUR)</option>
-                        <option value="GBP" data-symbol="£" data-label="GBP">🇬🇧 British Pound (GBP)</option>
-                        <option value="SAR" data-symbol="﷼" data-label="SAR">🇸🇦 Saudi Riyal (SAR)</option>
-                        <option value="SGD" data-symbol="S$" data-label="SGD">🇸🇬 Singapore Dollar (SGD)</option>
+                        <option value="USD" data-symbol="$" data-label="USD">ðŸ‡ºðŸ‡¸ US Dollar (USD)</option>
+                        <option value="INR" data-symbol="â‚¹" data-label="INR">ðŸ‡®ðŸ‡³ Indian Rupee (INR)</option>
+                        <option value="EUR" data-symbol="â‚¬" data-label="EUR">ðŸ‡ªðŸ‡º Euro (EUR)</option>
+                        <option value="GBP" data-symbol="Â£" data-label="GBP">ðŸ‡¬ðŸ‡§ British Pound (GBP)</option>
+                        <option value="SAR" data-symbol="ï·¼" data-label="SAR">ðŸ‡¸ðŸ‡¦ Saudi Riyal (SAR)</option>
+                        <option value="SGD" data-symbol="S$" data-label="SGD">ðŸ‡¸ðŸ‡¬ Singapore Dollar (SGD)</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -150,36 +150,35 @@
     $bankDetails = $settings['bank_details'] ?? '';
     ?>
 
-    <!-- ===== HEADER: Logo + Company + QUOTATION title ===== -->
-    <div class="qt-header-block qt-two-col mb-3" style="align-items:center;">
-        <div class="qt-col-logo" style="vertical-align:middle;">
-            <div style="display:flex;align-items:center;gap:14px;">
+    <!-- ===== HEADER: Logo + Company | DSO + QUOTATION title ===== -->
+    <div class="qt-header-block mb-3" style="display:table;width:100%;table-layout:fixed;border-collapse:separate;border-spacing:10px 0;">
+        <div style="display:table-cell;vertical-align:middle;width:66%;">
+            <div style="display:flex;align-items:center;gap:12px;">
             <?php if (!empty($settings['company_logo'])): ?>
-                <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_logo'] ?>" alt="Logo" style="max-height:65px;max-width:120px;">
+                <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_logo'] ?>" alt="Logo" style="max-height:55px;max-width:100px;">
             <?php endif; ?>
             <div>
-                <div style="font-size:1.15rem;font-weight:700;color:#1a1a2e;"><?= htmlspecialchars($companyName) ?></div>
+                <div style="font-size:1.05rem;font-weight:700;color:#1a1a2e;"><?= htmlspecialchars($companyName) ?></div>
                 <?php if ($companyTrn): ?>
-                    <div style="font-size:.78rem;font-weight:700;color:#e8602c;">TRN: <?= htmlspecialchars($companyTrn) ?></div>
+                    <div style="font-size:.75rem;font-weight:700;color:#e8602c;">TRN: <?= htmlspecialchars($companyTrn) ?></div>
                 <?php endif; ?>
-                <div style="font-size:.78rem;color:#6b7280;"><?= nl2br(htmlspecialchars($companyAddress)) ?></div>
-                <div style="font-size:.78rem;color:#6b7280;">
+                <div style="font-size:.75rem;color:#6b7280;"><?= nl2br(htmlspecialchars($companyAddress)) ?></div>
+                <div style="font-size:.75rem;color:#6b7280;">
                     <?= htmlspecialchars($companyEmail) ?><?php if ($companyPhone): ?> &nbsp;|&nbsp; <?= htmlspecialchars($companyPhone) ?><?php endif; ?>
                 </div>
             </div>
-        </div><!-- /qt-col-logo inner flex -->
-        </div><!-- /qt-col-logo -->
-        <div style="display:table-cell; vertical-align:middle; text-align:right; width:40%;">
-            <div style="font-size:1.9rem;font-weight:800;color:#3a3f51;letter-spacing:1px;line-height:1;">QUOTATION</div>
-            <div style="font-size:1rem;font-weight:700;color:#e8602c;margin-top:3px;"><?= $quotation['quotation_no'] ?></div>
-            <div style="font-size:.8rem;color:#6b7280;margin-top:2px;">Valid Until: <strong><?= date('d M Y', strtotime($quotation['valid_until'])) ?></strong></div>
+            </div>
+        </div>
+        <div style="display:table-cell;vertical-align:middle;text-align:right;width:34%;">
+            <img src="<?= BASE_URL ?>public/dso2.png" alt="DSO" style="height:70px;width:auto;display:block;margin-left:auto;">
+            <div style="font-size:1.9rem;font-weight:800;color:#3a3f51;letter-spacing:1px;line-height:1;margin-top:6px;">QUOTATION</div>
         </div>
     </div>
 
     <!-- Accent line -->
     <div class="qt-accent-line mb-4"></div>
 
-    <!-- ===== QUOTATION FOR + DETAILS (flex — stays one row on screen AND print) ===== -->
+    <!-- ===== QUOTATION FOR + DETAILS (flex â€” stays one row on screen AND print) ===== -->
     <div class="qt-for-block qt-two-col mb-3">
         <div class="qt-col-left">
             <div class="qt-infobox">
@@ -276,7 +275,7 @@
     </div>
     <?php endif; ?>
 
-    <!-- ===== BANKING DETAILS (INDIA — shown only on INR export) ===== -->
+    <!-- ===== BANKING DETAILS (INDIA â€” shown only on INR export) ===== -->
     <div class="qt-india-box mb-3" id="india-bank-block" style="display:none;">
         <h6 class="fw-bold mb-2" style="color:#e8602c;">BANKING DETAILS FOR PAYMENT (India)</h6>
         <table style="font-size:.85rem; border-collapse:collapse; width:100%;">
@@ -298,12 +297,23 @@
     <!-- ===== SIGNATURES ===== -->
     <div class="qt-sig-block" style="display:table;width:100%;margin-top:2rem;margin-bottom:1rem;">
         <div style="display:table-cell;width:50%;text-align:center;padding:0 1rem;">
+            <div style="position:relative;display:inline-block;min-height:80px;">
+                <?php if (!empty($settings['company_signature'])): ?>
+                    <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_signature'] ?>" alt="Signature"
+                         style="max-height:60px;max-width:160px;object-fit:contain;display:block;margin:0 auto 4px;">
+                <?php endif; ?>
+                <?php if (!empty($settings['company_stamp'])): ?>
+                    <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_stamp'] ?>" alt="Stamp"
+                         style="max-height:70px;max-width:70px;object-fit:contain;position:absolute;bottom:18px;right:-10px;opacity:.88;">
+                <?php endif; ?>
+            </div>
             <div class="qt-sig-line" style="display:inline-block;">
                 Authorized Signature<br>
                 <small style="color:#6b7280;"><?= htmlspecialchars($companyName) ?></small>
             </div>
         </div>
         <div style="display:table-cell;width:50%;text-align:center;padding:0 1rem;">
+            <div style="min-height:80px;"></div>
             <div class="qt-sig-line" style="display:inline-block;">
                 Customer Acceptance<br>
                 <small style="color:#6b7280;"><?= htmlspecialchars($lead['lead_name'] ?: ($lead['company_name'] ?? '')) ?></small>
@@ -387,3 +397,4 @@ function printClean() {
     window.print();
 }
 </script>
+

@@ -1,4 +1,4 @@
-<!-- Print Styles -->
+﻿<!-- Print Styles -->
 <style>
 @media print {
     .no-print { display: none !important; }
@@ -38,6 +38,9 @@
         <div class="col">
             <h3 class="fw-bold mb-0" style="color:#10b981;"><?= htmlspecialchars($company_name ?: 'Company') ?></h3>
             <p class="text-muted small mb-0">Client Statement of Account</p>
+        </div>
+        <div class="col-auto text-center">
+            <img src="<?= BASE_URL ?>public/dso2.png" alt="DSO" style="height:70px;width:auto;display:block;margin:0 auto;">
         </div>
         <div class="col-auto text-end">
             <p class="text-muted small mb-0">Date Generated:</p>
@@ -115,7 +118,7 @@
                     <td class="ps-3 text-muted"><?= $i + 1 ?></td>
                     <td class="text-primary fw-semibold"><?= htmlspecialchars($inv['invoice_no']) ?></td>
                     <td class="text-muted small"><?= date('d M Y', strtotime($inv['created_at'])) ?></td>
-                    <td class="text-muted small"><?= !empty($inv['due_date']) ? date('d M Y', strtotime($inv['due_date'])) : '—' ?></td>
+                    <td class="text-muted small"><?= !empty($inv['due_date']) ? date('d M Y', strtotime($inv['due_date'])) : 'â€”' ?></td>
                     <td class="text-end fw-semibold"><?= formatMoney($inv['grand_total']) ?></td>
                     <td class="text-end text-success"><?= formatMoney($inv['amount_received']) ?></td>
                     <td class="text-end <?= $inv['balance_due'] > 0 ? 'text-danger' : 'text-success' ?>"><?= formatMoney($inv['balance_due']) ?></td>
@@ -175,3 +178,4 @@
         <i class="fas fa-arrow-left me-1"></i>New Statement
     </a>
 </div>
+

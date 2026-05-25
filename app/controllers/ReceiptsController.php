@@ -124,6 +124,37 @@ class ReceiptsController extends Controller {
         ]);
     }
 
+    public function show($id) {
+        require_once 'app/models/ReceiptModel.php';
+        require_once 'app/models/InvoiceModel.php';
+        require_once 'app/models/LeadModel.php';
+        require_once 'app/models/SettingsModel.php';
+
+        $receiptModel  = new ReceiptModel();
+        $invoiceModel  = new InvoiceModel();
+        $leadModel     = new LeadModel();
+        $settingsModel = new SettingsModel();
+
+        $receipt = $receiptModel->find($id);
+        if (!$receipt) $this->redirect('receipts');
+
+        $invoice     = $invoiceModel->find($receipt['invoice_id']);
+        $lead        = $leadModel->find($invoice['lead_id']);
+        $settings    = $settingsModel->getAllSettings();
+        $totalPaid   = $receiptModel->getTotalPaid($invoice['id']);
+        $balanceDue  = $invoice['grand_total'] - $totalPaid;
+
+        $this->view('receipts/view', [
+            'receipt'    => $receipt,
+            'invoice'    => $invoice,
+            'lead'       => $lead,
+            'settings'   => $settings,
+            'total_paid' => $totalPaid,
+            'balance_due'=> $balanceDue,
+            'title'      => 'Receipt ' . $receipt['receipt_no']
+        ]);
+    }
+
     public function edit($id) {
         require_once 'app/models/ReceiptModel.php';
         require_once 'app/models/InvoiceModel.php';

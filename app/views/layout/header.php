@@ -68,6 +68,11 @@ if (!isset($settings) || !isset($settings['company_logo'])) {
             </a>
         </li>
         <li class="nav-item">
+            <a href="<?= BASE_URL ?>paymentvoucher" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'paymentvoucher') !== false ? 'active' : '' ?>">
+                <i class="fas fa-file-invoice-dollar"></i> Payment Vouchers
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="<?= BASE_URL ?>salesreport" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'salesreport') !== false ? 'active' : '' ?>">
                 <i class="fas fa-chart-bar"></i> Sales Report
             </a>
@@ -88,8 +93,18 @@ if (!isset($settings) || !isset($settings['company_logo'])) {
             </a>
         </li>
         <li class="nav-item">
+            <a href="<?= BASE_URL ?>offerletters" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'offerletters') !== false ? 'active' : '' ?>">
+                <i class="fas fa-file-signature"></i> Offer Letters
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="<?= BASE_URL ?>statements" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'statements') !== false ? 'active' : '' ?>">
                 <i class="fas fa-file-contract"></i> Statements
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="<?= BASE_URL ?>contracts" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'contracts') !== false ? 'active' : '' ?>">
+                <i class="fas fa-handshake"></i> Contracts
             </a>
         </li>
         <?php if ($_SESSION['user_role'] == 'Super Admin'): ?>

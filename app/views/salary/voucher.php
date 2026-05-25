@@ -1,4 +1,4 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -42,7 +42,7 @@ $companyTrn     = $settings['company_trn'] ?? '';
 
     <!-- ===== HEADER ===== -->
     <div class="row align-items-center mb-3">
-        <div class="col-md-7 d-flex align-items-center gap-3">
+        <div class="col-md-4 d-flex align-items-center gap-3">
             <?php if (!empty($settings['company_logo'])): ?>
                 <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_logo'] ?>" alt="Logo" style="max-height: 65px;">
             <?php endif; ?>
@@ -52,7 +52,10 @@ $companyTrn     = $settings['company_trn'] ?? '';
                 <small class="text-muted"><?= nl2br(htmlspecialchars($companyAddress)) ?></small>
             </div>
         </div>
-        <div class="col-md-5 text-end">
+        <div class="col-md-4 text-center">
+            <img src="<?= BASE_URL ?>public/dso2.png" alt="DSO" style="height:70px;width:auto;display:block;margin:0 auto;">
+        </div>
+        <div class="col-md-4 text-end">
             <h2 class="fw-bold text-uppercase mb-1" style="color:#3a3f51;">SALARY VOUCHER</h2>
             <h5 class="fw-bold sv-accent mb-0"><?= htmlspecialchars($payment['voucher_no']) ?></h5>
             <small class="text-muted">Date: <?= date('d M Y', strtotime($payment['payment_date'])) ?></small>
@@ -67,7 +70,7 @@ $companyTrn     = $settings['company_trn'] ?? '';
             <div class="bg-light rounded p-3">
                 <p class="text-uppercase text-muted fw-bold small mb-2">Employee Details</p>
                 <h5 class="fw-bold mb-1"><?= htmlspecialchars($payment['full_name']) ?></h5>
-                <p class="mb-0 text-muted"><?= htmlspecialchars($payment['designation']) ?><?= $payment['department'] ? ' · ' . htmlspecialchars($payment['department']) : '' ?></p>
+                <p class="mb-0 text-muted"><?= htmlspecialchars($payment['designation']) ?><?= $payment['department'] ? ' Â· ' . htmlspecialchars($payment['department']) : '' ?></p>
                 <p class="mb-0 text-muted small">Emp No: <strong><?= htmlspecialchars($payment['employee_no']) ?></strong></p>
                 <?php if ($payment['nationality']): ?><p class="mb-0 text-muted small">Nationality: <?= htmlspecialchars($payment['nationality']) ?></p><?php endif; ?>
                 <?php if ($payment['passport_no']): ?><p class="mb-0 text-muted small">Passport: <?= htmlspecialchars($payment['passport_no']) ?></p><?php endif; ?>
@@ -130,7 +133,7 @@ $companyTrn     = $settings['company_trn'] ?? '';
                 <?php if ($payment['deductions'] > 0): ?>
                 <tr class="text-danger">
                     <td class="text-muted"></td>
-                    <td>Deductions<?= $payment['deduction_reason'] ? ' — <span class="text-muted fw-normal">' . htmlspecialchars($payment['deduction_reason']) . '</span>' : '' ?></td>
+                    <td>Deductions<?= $payment['deduction_reason'] ? ' â€” <span class="text-muted fw-normal">' . htmlspecialchars($payment['deduction_reason']) . '</span>' : '' ?></td>
                     <td class="text-end">-<?= formatMoney($payment['deductions']) ?></td>
                 </tr>
                 <?php endif; ?>
@@ -160,13 +163,16 @@ $companyTrn     = $settings['company_trn'] ?? '';
     <?php endif; ?>
 
     <!-- ===== SIGNATURES ===== -->
-    <div class="row mt-5 mb-4">
+    <div class="row mt-5 mb-4 align-items-end">
         <div class="col-4 text-center">
             <div class="sv-sig-line d-inline-block">
                 Prepared By
             </div>
         </div>
         <div class="col-4 text-center">
+            <img src="<?= BASE_URL ?>public/assets/sign_stamp.png" alt="Authorized Signature & Stamp"
+                 style="max-width:170px;max-height:70px;object-fit:contain;display:block;margin:0 auto 6px;"
+                 onerror="this.style.display='none'">
             <div class="sv-sig-line d-inline-block">
                 Authorized By<br>
                 <small class="text-muted"><?= htmlspecialchars($companyName) ?></small>
@@ -220,3 +226,4 @@ function downloadPDF() {
     });
 }
 </script>
+

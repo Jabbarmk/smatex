@@ -13,7 +13,7 @@
                     </div>
                 <?php endif; ?>
 
-                <form action="<?= BASE_URL ?>settings/update" method="POST">
+                <form action="<?= BASE_URL ?>settings/update" method="POST" enctype="multipart/form-data">
                     
                     <h5 class="border-bottom pb-2 mb-3 text-primary">Financial Settings</h5>
                     
@@ -71,6 +71,37 @@
                     </div>
 
                     <h5 class="border-bottom pb-2 mb-3 mt-4 text-primary">Company Information (For Invoices)</h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Company Logo</label>
+                            <?php if (!empty($settings['company_logo']) && file_exists('public/uploads/' . $settings['company_logo'])): ?>
+                                <div class="mb-2"><img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_logo'] ?>" alt="Logo" style="max-height:55px;max-width:160px;object-fit:contain;border:1px solid #eee;padding:4px;border-radius:6px;"></div>
+                            <?php endif; ?>
+                            <input type="file" name="company_logo" class="form-control" accept="image/png,image/jpeg,image/gif,image/webp">
+                            <div class="form-text">PNG / JPG / GIF / WebP.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Authorized Signature</label>
+                            <?php if (!empty($settings['company_signature']) && file_exists('public/uploads/' . $settings['company_signature'])): ?>
+                                <div class="mb-2"><img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_signature'] ?>" alt="Signature" style="max-height:55px;max-width:160px;object-fit:contain;border:1px solid #eee;padding:4px;border-radius:6px;"></div>
+                            <?php else: ?>
+                                <div class="mb-2 text-muted small fst-italic">No signature uploaded yet.</div>
+                            <?php endif; ?>
+                            <input type="file" name="company_signature" class="form-control" accept="image/png,image/jpeg,image/gif,image/webp">
+                            <div class="form-text">PNG with transparent background recommended. Shown on invoices, receipts &amp; quotations.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Company Stamp / Seal</label>
+                            <?php if (!empty($settings['company_stamp']) && file_exists('public/uploads/' . $settings['company_stamp'])): ?>
+                                <div class="mb-2"><img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_stamp'] ?>" alt="Stamp" style="max-height:65px;max-width:160px;object-fit:contain;border:1px solid #eee;padding:4px;border-radius:6px;"></div>
+                            <?php else: ?>
+                                <div class="mb-2 text-muted small fst-italic">No stamp uploaded yet.</div>
+                            <?php endif; ?>
+                            <input type="file" name="company_stamp" class="form-control" accept="image/png,image/jpeg,image/gif,image/webp">
+                            <div class="form-text">PNG with transparent background recommended. Shown on invoices, receipts, quotations &amp; HR documents.</div>
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Company Name</label>

@@ -24,15 +24,28 @@ class SettingsController extends Controller {
             require_once 'app/models/SettingsModel.php';
             $settingsModel = new SettingsModel();
 
-            // Loop through POST data and update settings
+            $allowed = ['tax_percentage', 'currency_symbol', 'currency_position', 'decimal_separator', 'thousands_separator', 'decimal_places', 'company_name', 'company_address', 'company_phone', 'company_email', 'company_website', 'company_trn', 'bank_details', 'invoice_terms', 'invoice_footer', 'company_signature'];
             foreach ($_POST as $key => $value) {
-                // Ensure key is safe or whitelist keys
-                if (in_array($key, ['tax_percentage', 'currency_symbol', 'currency_position', 'decimal_separator', 'thousands_separator', 'decimal_places', 'company_name', 'company_address', 'company_phone', 'company_email', 'company_website', 'company_trn', 'bank_details', 'invoice_terms', 'invoice_footer'])) {
+                if (in_array($key, $allowed)) {
                     $settingsModel->setSetting($key, $value);
                 }
             }
-            
-            // Redirect back with success (could add flash message)
+
+            $uploadDir = 'public/uploads/';
+            foreach (['company_logo', 'company_stamp', 'company_signature'] as $field) {
+                if (!empty($_FILES[$field]['name']) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
+                    $ext = strtolower(pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION));
+                    if (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp'])) {
+                        $filename = $field . '_' . time() . '_' . preg_replace('/[^a-z0-9_.-]/', '', strtolower($_FILES[$field]['name']));
+                        if (move_uploaded_file($_FILES[$field]['tmp_name'], $uploadDir . $filename)) {
+                            $old = $settingsModel->getSetting($field);
+                            if ($old && file_exists($uploadDir . $old)) @unlink($uploadDir . $old);
+                            $settingsModel->setSetting($field, $filename);
+                        }
+                    }
+                }
+            }
+
             header('Location: ' . BASE_URL . 'settings?success=1');
             exit;
         }

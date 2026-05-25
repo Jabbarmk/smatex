@@ -1,4 +1,4 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -58,9 +58,9 @@
 
     <!-- ===== HEADER: Logo + Company + INVOICE title ===== -->
     <div class="row align-items-center mb-3">
-        <div class="col-md-7 d-flex align-items-center gap-3">
+        <div class="col-md-4 d-flex align-items-center gap-3">
             <?php if (!empty($settings['company_logo'])): ?>
-                <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_logo'] ?>" alt="Logo" style="max-height: 70px;">
+                <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_logo'] ?>" alt="Logo" style="max-height: 65px;">
             <?php endif; ?>
             <div>
                 <h4 class="fw-bold mb-0"><?= htmlspecialchars($companyName) ?></h4>
@@ -74,7 +74,10 @@
                 </small>
             </div>
         </div>
-        <div class="col-md-5 text-end">
+        <div class="col-md-4 text-center">
+            <img src="<?= BASE_URL ?>public/dso2.png" alt="DSO" style="height:70px;width:auto;display:block;margin:0 auto;">
+        </div>
+        <div class="col-md-4 text-end">
             <h1 class="fw-bold text-uppercase mb-1" style="font-size: 2.2rem; color: #3a3f51;">INVOICE</h1>
             <h5 class="fw-bold inv-accent mb-0"><?= $invoice['invoice_no'] ?></h5>
             <small class="text-muted">Date: <?= date('M d, Y', strtotime($invoice['created_at'])) ?></small>
@@ -246,12 +249,23 @@
     <!-- ===== SIGNATURES ===== -->
     <div class="row mt-5 mb-4">
         <div class="col-6 text-center">
+            <div style="position:relative;display:inline-block;min-height:80px;">
+                <?php if (!empty($settings['company_signature'])): ?>
+                    <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_signature'] ?>" alt="Signature"
+                         style="max-height:60px;max-width:160px;object-fit:contain;display:block;margin:0 auto 4px;">
+                <?php endif; ?>
+                <?php if (!empty($settings['company_stamp'])): ?>
+                    <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_stamp'] ?>" alt="Stamp"
+                         style="max-height:70px;max-width:70px;object-fit:contain;position:absolute;bottom:18px;right:-10px;opacity:.88;">
+                <?php endif; ?>
+            </div>
             <div class="inv-sig-line d-inline-block">
                 Authorized Signature<br>
                 <small class="text-muted"><?= htmlspecialchars($companyName) ?></small>
             </div>
         </div>
         <div class="col-6 text-center">
+            <div style="min-height:80px;"></div>
             <div class="inv-sig-line d-inline-block">
                 Customer Acceptance<br>
                 <small class="text-muted"><?= htmlspecialchars($lead['lead_name'] ?: ($lead['company_name'] ?? '')) ?></small>
@@ -306,3 +320,4 @@ function downloadPDF() {
     });
 }
 </script>
+

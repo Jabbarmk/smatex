@@ -16,23 +16,47 @@ class InvoicesController extends Controller {
     public function create() {
         require_once 'app/models/LeadModel.php';
         require_once 'app/models/SettingsModel.php';
-        
+        require_once 'app/models/QuotationModel.php';
+
         $leadModel = new LeadModel();
         $settingsModel = new SettingsModel();
-        
+        $quotationModel = new QuotationModel();
+
         $leads = $leadModel->getAllWithSalesManager();
         $settings = $settingsModel->getAllSettings();
-        
+        $quotations = $quotationModel->getAllWithLead();
+
         // Generate Invoice Number
-        $nextId = rand(1000, 9999); 
+        $nextId = rand(1000, 9999);
         $invoiceNo = 'INV-' . date('Y') . '-' . $nextId;
 
         $this->view('invoices/create', [
-            'leads' => $leads, 
+            'leads' => $leads,
+            'quotations' => $quotations,
             'invoice_no' => $invoiceNo,
             'tax_percentage' => $settings['tax_percentage'] ?? 5,
             'currency_symbol' => $settings['currency_symbol'] ?? '$',
             'title' => 'Create Invoice'
+        ]);
+    }
+
+    public function getQuotation($id) {
+        require_once 'app/models/QuotationModel.php';
+        $quotationModel = new QuotationModel();
+
+        $quotation = $quotationModel->find($id);
+        if (!$quotation) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Quotation not found']);
+            return;
+        }
+
+        $items = $quotationModel->getItems($id);
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'quotation' => $quotation,
+            'items' => $items
         ]);
     }
 

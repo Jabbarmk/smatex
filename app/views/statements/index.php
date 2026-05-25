@@ -90,4 +90,49 @@
         </div>
     </div>
 
+    <!-- ===== PAYMENT VOUCHER STATEMENT ===== -->
+    <div class="col-12">
+        <div class="card stmt-pick-card shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="stmt-pick-icon" style="background:#fff7ed;">
+                        <i class="fas fa-file-invoice-dollar" style="color:#e8602c;"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Payment Voucher Statement</h5>
+                        <small class="text-muted">All payment vouchers issued for a client</small>
+                    </div>
+                </div>
+
+                <form method="POST" action="<?= BASE_URL ?>statements/voucher">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Select Client</label>
+                            <select name="client_id" class="form-select" required>
+                                <option value="">— Choose a client —</option>
+                                <?php foreach ($clients as $c): ?>
+                                <option value="<?= $c['id'] ?>">
+                                    <?= htmlspecialchars($c['company_name'] ?: $c['lead_name']) ?>
+                                    <?php if ($c['company_name'] && $c['lead_name'] !== $c['company_name']): ?> — <?= htmlspecialchars($c['lead_name']) ?><?php endif; ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn w-100" style="background:#e8602c; color:#fff;">
+                                <i class="fas fa-file-alt me-2"></i>Generate Voucher Statement
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <hr class="my-3">
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Shows all payment vouchers issued for the selected client with voucher number, date, mode, invoices covered, and total paid.
+                </p>
+            </div>
+        </div>
+    </div>
+
 </div>

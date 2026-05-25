@@ -50,6 +50,7 @@
                             <td><?= $receipt['payment_mode'] ?></td>
                             <td class="text-end fw-bold text-success"><?= formatMoney($receipt['amount_paid']) ?></td>
                             <td class="text-end">
+                                <a href="<?= BASE_URL ?>receipts/show/<?= $receipt['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Preview / Print"><i class="fas fa-eye"></i></a>
                                 <a href="<?= BASE_URL ?>receipts/edit/<?= $receipt['id'] ?>" class="btn btn-sm btn-outline-secondary me-1"><i class="fas fa-edit"></i></a>
                                 <a href="<?= BASE_URL ?>receipts/delete/<?= $receipt['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
                             </td>

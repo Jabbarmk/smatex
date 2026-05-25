@@ -63,6 +63,7 @@
                         </td>
                         <td class="text-end">
                             <a href="<?= BASE_URL ?>salary/create?emp=<?= $emp['id'] ?>" class="btn btn-sm btn-outline-success" title="New Salary Voucher"><i class="fas fa-file-invoice-dollar"></i></a>
+                            <a href="<?= BASE_URL ?>offerletters/create?emp=<?= $emp['id'] ?>" class="btn btn-sm btn-outline-primary" title="Create Offer Letter"><i class="fas fa-file-signature"></i></a>
                             <a href="<?= BASE_URL ?>employees/edit/<?= $emp['id'] ?>" class="btn btn-sm btn-light text-primary" title="Edit"><i class="fas fa-edit"></i></a>
                             <a href="<?= BASE_URL ?>employees/delete/<?= $emp['id'] ?>" class="btn btn-sm btn-light text-danger" title="Delete" onclick="return confirm('Delete this employee?')"><i class="fas fa-trash"></i></a>
                         </td>

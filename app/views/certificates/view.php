@@ -2,13 +2,11 @@
 $verifyUrl = 'https://www.smartflix.ae/certificate/' . $cert['certificate_slug'];
 $qrUrl     = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=' . urlencode($verifyUrl);
 
-$logoPath  = '';
-if (!empty($settings['company_logo']) && file_exists('public/uploads/' . $settings['company_logo'])) {
-    $logoPath = BASE_URL . 'public/uploads/' . $settings['company_logo'];
-}
+$logoPath = !empty($settings['company_logo'])
+    ? BASE_URL . 'public/uploads/' . $settings['company_logo']
+    : '';
 
-$signPath  = BASE_URL . 'assets/sign.png';
-$stampPath = BASE_URL . 'assets/stamp.png';
+$signStampPath = BASE_URL . 'public/assets/sign_stamp.png';
 
 $durLabel = '';
 if (!empty($cert['duration_from']) && !empty($cert['duration_to'])) {
@@ -117,7 +115,7 @@ if ($body === '') {
 
             <!-- Signature -->
             <div class="cert-sign-block">
-                <img src="<?= $signPath ?>" alt="Signature" class="sign-img" onerror="this.style.display='none'">
+                <img src="<?= $signStampPath ?>" alt="Signature & Stamp" class="sign-img" style="max-width:160px;max-height:60px;object-fit:contain;" onerror="this.style.display='none'">
                 <div class="sign-line"></div>
                 <div class="sign-name"><?= htmlspecialchars($cert['issued_by'] ?: 'Authorized Signatory') ?></div>
                 <div class="sign-title"><?= htmlspecialchars($cert['issued_by_title'] ?: 'Authorized Signatory') ?></div>
@@ -131,9 +129,8 @@ if ($body === '') {
                 <div class="co-web">&#127760; <?= $companyWeb ?></div>
             </div>
 
-            <!-- Stamp + QR -->
+            <!-- QR -->
             <div class="cert-stamp-qr">
-                <img src="<?= $stampPath ?>" alt="Stamp" class="stamp-img" onerror="this.style.visibility='hidden'">
                 <div class="qr-wrap">
                     <img src="<?= $qrUrl ?>" alt="QR" class="qr-img">
                     <div class="qr-label">Scan to verify</div>
@@ -372,12 +369,12 @@ if ($body === '') {
 
 /* Signature */
 .cert-sign-block {
-    width: 33%;
+    width: 40%;
     text-align: center;
 }
 .sign-img {
-    max-width: 130px;
-    max-height: 55px;
+    max-width: 190px;
+    max-height: 70px;
     margin: 0 auto 5px;
     display: block;
     object-fit: contain;

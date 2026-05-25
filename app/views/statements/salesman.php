@@ -1,4 +1,4 @@
-<!-- Print Styles -->
+﻿<!-- Print Styles -->
 <style>
 @media print {
     .no-print { display: none !important; }
@@ -41,6 +41,9 @@
         <div class="col">
             <h3 class="fw-bold mb-0" style="color:#6366f1;"><?= htmlspecialchars($company_name ?: 'Company') ?></h3>
             <p class="text-muted small mb-0">Sales Statement</p>
+        </div>
+        <div class="col-auto text-center">
+            <img src="<?= BASE_URL ?>public/dso2.png" alt="DSO" style="height:70px;width:auto;display:block;margin:0 auto;">
         </div>
         <div class="col-auto text-end">
             <p class="text-muted small mb-0">Date Generated:</p>
@@ -168,3 +171,4 @@
         <i class="fas fa-arrow-left me-1"></i>New Statement
     </a>
 </div>
+

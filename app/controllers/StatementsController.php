@@ -5,7 +5,7 @@ class StatementsController extends Controller {
         $this->requireLogin();
     }
 
-    /** Landing page — two forms: pick salesman OR pick client */
+    /** Landing page — three forms: salesman, client, payment voucher */
     public function index() {
         require_once 'app/models/StatementsModel.php';
         require_once 'app/models/SettingsModel.php';
@@ -18,6 +18,41 @@ class StatementsController extends Controller {
             'currency_symbol' => $settings['currency_symbol'] ?? 'AED',
             'salesmen'        => $model->getAllSalesmen(),
             'clients'         => $model->getAllClients(),
+        ]);
+    }
+
+    /** Payment Voucher Statement: pick client → view all vouchers */
+    public function voucher($id = null) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = (int)($_POST['client_id'] ?? 0);
+            if (!$id) $this->redirect('statements');
+            $this->redirect('statements/voucher/' . $id);
+        }
+
+        if (!$id) $this->redirect('statements');
+
+        require_once 'app/models/StatementsModel.php';
+        require_once 'app/models/PaymentVoucherModel.php';
+        require_once 'app/models/SettingsModel.php';
+
+        $stmtModel = new StatementsModel();
+        $pvModel   = new PaymentVoucherModel();
+        $settings  = (new SettingsModel())->getAllSettings();
+
+        $client = $stmtModel->getClientById($id);
+        if (!$client) $this->redirect('statements');
+
+        $vouchers     = $pvModel->getStatementForLead($id);
+        $totalAmount  = array_sum(array_column($vouchers, 'amount'));
+
+        $this->view('statements/voucherstatement', [
+            'title'          => 'Payment Voucher Statement — ' . ($client['company_name'] ?: $client['lead_name']),
+            'currency_symbol'=> $settings['currency_symbol'] ?? 'AED',
+            'company_name'   => $settings['company_name'] ?? '',
+            'settings'       => $settings,
+            'client'         => $client,
+            'vouchers'       => $vouchers,
+            'total_amount'   => $totalAmount,
         ]);
     }
 
