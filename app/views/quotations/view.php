@@ -167,6 +167,9 @@
                 <div style="font-size:.75rem;color:#6b7280;">
                     <?= htmlspecialchars($companyEmail) ?><?php if ($companyPhone): ?> &nbsp;|&nbsp; <?= htmlspecialchars($companyPhone) ?><?php endif; ?>
                 </div>
+                <div style="font-size:.72rem;color:#e8602c;font-weight:600;margin-top:2px;">
+                    Back Office in India: Cochin, Coimbatore, Bangalore, Gujarat
+                </div>
             </div>
             </div>
         </div>
