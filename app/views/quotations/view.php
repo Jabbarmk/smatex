@@ -105,12 +105,13 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Target Currency</label>
                     <select class="form-select" id="convertCurrency">
-                        <option value="USD" data-symbol="$" data-label="USD">ðŸ‡ºðŸ‡¸ US Dollar (USD)</option>
-                        <option value="INR" data-symbol="â‚¹" data-label="INR">ðŸ‡®ðŸ‡³ Indian Rupee (INR)</option>
-                        <option value="EUR" data-symbol="â‚¬" data-label="EUR">ðŸ‡ªðŸ‡º Euro (EUR)</option>
-                        <option value="GBP" data-symbol="Â£" data-label="GBP">ðŸ‡¬ðŸ‡§ British Pound (GBP)</option>
-                        <option value="SAR" data-symbol="ï·¼" data-label="SAR">ðŸ‡¸ðŸ‡¦ Saudi Riyal (SAR)</option>
-                        <option value="SGD" data-symbol="S$" data-label="SGD">ðŸ‡¸ðŸ‡¬ Singapore Dollar (SGD)</option>
+                        <option value="USD" data-symbol="$"        data-label="USD">US Dollar (USD)</option>
+                        <option value="INR" data-symbol="&#8377;"  data-label="INR">Indian Rupee (INR)</option>
+                        <option value="EUR" data-symbol="&#8364;"  data-label="EUR">Euro (EUR)</option>
+                        <option value="GBP" data-symbol="&#163;"   data-label="GBP">British Pound (GBP)</option>
+                        <option value="SAR" data-symbol="SAR "     data-label="SAR">Saudi Riyal (SAR)</option>
+                        <option value="SGD" data-symbol="S$"       data-label="SGD">Singapore Dollar (SGD)</option>
+                        <option value="AED" data-symbol="AED "     data-label="AED">UAE Dirham (AED)</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -339,7 +340,7 @@ const origSymbol = <?= json_encode($settings['currency_symbol'] ?? 'AED') ?>;
 let converted = false;
 
 function fmtConverted(amount, symbol, decimals) {
-    return symbol + Number(amount).toLocaleString('en-IN', {
+    return symbol + Number(amount).toLocaleString('en-US', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
     });
