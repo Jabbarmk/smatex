@@ -331,6 +331,9 @@
         <?= htmlspecialchars($companyEmail) ?>
         <?php if ($companyPhone): ?> | <?= htmlspecialchars($companyPhone) ?><?php endif; ?>
         <?php if ($companyWebsite): ?> | <?= htmlspecialchars($companyWebsite) ?><?php endif; ?>
+        <div id="india-footer-line" style="display:none;margin-top:3px;">
+            Backoffice Team (India): Cochin, Mangalore, Bangalore, Coimbatore, Gujarat &nbsp;&bull;&nbsp; Contact: +9516 71 7777
+        </div>
     </div>
 
 </div>
@@ -370,15 +373,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const lbl = document.getElementById('qt-currency-label');
         if (lbl) lbl.textContent = label + '  (1 ' + origSymbol + ' = ' + rate + ' ' + label + ')';
 
-        // Show / hide bank blocks
-        const indiaBk = document.getElementById('india-bank-block');
-        const uaeBk   = document.getElementById('uae-bank-block');
+        // Show / hide bank blocks and India footer
+        const indiaBk  = document.getElementById('india-bank-block');
+        const uaeBk    = document.getElementById('uae-bank-block');
+        const indiaFtr = document.getElementById('india-footer-line');
         if (label === 'INR') {
-            if (indiaBk) indiaBk.style.display = '';
-            if (uaeBk)   uaeBk.style.display   = 'none';
+            if (indiaBk)  indiaBk.style.display  = '';
+            if (uaeBk)    uaeBk.style.display    = 'none';
+            if (indiaFtr) indiaFtr.style.display = '';
         } else {
-            if (indiaBk) indiaBk.style.display = 'none';
-            if (uaeBk)   uaeBk.style.display   = '';
+            if (indiaBk)  indiaBk.style.display  = 'none';
+            if (uaeBk)    uaeBk.style.display    = '';
+            if (indiaFtr) indiaFtr.style.display = 'none';
         }
 
         converted = true;
