@@ -35,12 +35,12 @@ class ExpenseModel extends Model {
         return $stmt->execute($data);
     }
 
-    public function filter($month = null, $date = null) {
-        $sql = "SELECT e.*, u.name as created_by_name 
-                FROM expenses e 
-                LEFT JOIN users u ON e.created_by = u.id 
+    public function filter($month = null, $date = null, $category = null) {
+        $sql = "SELECT e.*, u.name as created_by_name
+                FROM expenses e
+                LEFT JOIN users u ON e.created_by = u.id
                 WHERE 1=1";
-        
+
         $params = [];
 
         if (!empty($date)) {
@@ -51,10 +51,24 @@ class ExpenseModel extends Model {
             $params['month'] = $month;
         }
 
+        if (!empty($category)) {
+            $sql .= " AND e.category = :category";
+            $params['category'] = $category;
+        }
+
         $sql .= " ORDER BY e.expense_date DESC";
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    /** Distinct categories in use, for the filter dropdown */
+    public function getCategories() {
+        return $this->db->query("
+            SELECT DISTINCT category FROM expenses
+            WHERE category IS NOT NULL AND category != ''
+            ORDER BY category
+        ")->fetchAll(PDO::FETCH_COLUMN);
     }
 }

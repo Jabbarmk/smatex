@@ -11,35 +11,53 @@ class ExpensesController extends Controller {
         
         $month = $_GET['month'] ?? date('Y-m');
         $date = $_GET['date'] ?? null;
+        $category = trim($_GET['category'] ?? '');
         $showAll = isset($_GET['show_all']);
 
         if ($showAll) {
-             $expenses = $expenseModel->filter(null, null);
+             $expenses = $expenseModel->filter(null, null, $category);
              $filterLabel = "All Time Expenses";
              $month = ''; // Clear for view
              $date = '';
         } elseif (!empty($date)) {
-            $expenses = $expenseModel->filter(null, $date);
+            $expenses = $expenseModel->filter(null, $date, $category);
             $filterLabel = "Date: " . $date;
             $month = ''; // Clear month if date selected
         } elseif (!empty($month)) {
-            $expenses = $expenseModel->filter($month, null);
+            $expenses = $expenseModel->filter($month, null, $category);
             $filterLabel = "Month: " . date('F Y', strtotime($month));
         } else {
             // Fallback (shouldn't really happen with current logic unless manually manip URL)
-            $expenses = $expenseModel->filter(date('Y-m'), null);
+            $expenses = $expenseModel->filter(date('Y-m'), null, $category);
             $filterLabel = "Current Month";
         }
-        
+
+        if ($category !== '') {
+            $filterLabel .= " — Category: " . $category;
+        }
+
+        // Summary for the filtered result set
+        $totalAmount    = array_sum(array_column($expenses, 'amount'));
+        $categoryTotals = [];
+        foreach ($expenses as $e) {
+            $cat = $e['category'] ?: 'Uncategorized';
+            $categoryTotals[$cat] = ($categoryTotals[$cat] ?? 0) + $e['amount'];
+        }
+        arsort($categoryTotals);
+
         require_once 'app/models/SettingsModel.php';
         $settingsModel = new SettingsModel();
         $settings = $settingsModel->getAllSettings();
-        
+
         $this->view('expenses/index', [
-            'expenses' => $expenses, 
+            'expenses' => $expenses,
             'title' => 'Expense Management',
             'current_month' => $month,
             'current_date' => $date,
+            'current_category' => $category,
+            'categories' => $expenseModel->getCategories(),
+            'total_amount' => $totalAmount,
+            'category_totals' => $categoryTotals,
             'filter_label' => $filterLabel,
             'currency_symbol' => $settings['currency_symbol'] ?? '$'
         ]);
