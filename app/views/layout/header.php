@@ -11,10 +11,11 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="<?= BASE_URL ?>public/assets/css/style.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>public/assets/css/style.css?v=<?= @filemtime('public/assets/css/style.css') ?: '1' ?>" rel="stylesheet">
 </head>
 <body>
 <?php require_once 'app/helpers/currency.php'; ?>
+<?php require_once 'app/helpers/html.php'; ?>
 
 <?php if (isset($_SESSION['user_id'])): ?>
 <?php
@@ -36,20 +37,18 @@ if (!isset($settings) || !isset($settings['company_logo'])) {
             <h4 class="text-white fw-bold mb-0 ls-1" style="letter-spacing: 1px;"><i class="fas fa-cube me-2"></i>Smatflix</h4>
         <?php endif; ?>
     </div>
+    <div class="sidebar-nav">
     <ul class="nav flex-column">
         <li class="nav-item">
             <a href="<?= BASE_URL ?>dashboard" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false ? 'active' : '' ?>">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
         </li>
+
+        <li class="nav-section-label">Sales</li>
         <li class="nav-item">
             <a href="<?= BASE_URL ?>leads" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'leads') !== false ? 'active' : '' ?>">
                 <i class="fas fa-funnel-dollar"></i> Leads CRM
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="<?= BASE_URL ?>expenses" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'expenses') !== false ? 'active' : '' ?>">
-                <i class="fas fa-wallet"></i> Expenses
             </a>
         </li>
         <li class="nav-item">
@@ -67,9 +66,11 @@ if (!isset($settings) || !isset($settings['company_logo'])) {
                 <i class="fas fa-receipt"></i> Receipts
             </a>
         </li>
+
+        <li class="nav-section-label">Reports</li>
         <li class="nav-item">
-            <a href="<?= BASE_URL ?>paymentvoucher" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'paymentvoucher') !== false ? 'active' : '' ?>">
-                <i class="fas fa-file-invoice-dollar"></i> Payment Vouchers
+            <a href="<?= BASE_URL ?>statements" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'statements') !== false ? 'active' : '' ?>">
+                <i class="fas fa-file-contract"></i> Statements
             </a>
         </li>
         <li class="nav-item">
@@ -77,6 +78,20 @@ if (!isset($settings) || !isset($settings['company_logo'])) {
                 <i class="fas fa-chart-bar"></i> Sales Report
             </a>
         </li>
+
+        <li class="nav-section-label">Finance</li>
+        <li class="nav-item">
+            <a href="<?= BASE_URL ?>expenses" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'expenses') !== false ? 'active' : '' ?>">
+                <i class="fas fa-wallet"></i> Expenses
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="<?= BASE_URL ?>paymentvoucher" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'paymentvoucher') !== false ? 'active' : '' ?>">
+                <i class="fas fa-file-invoice-dollar"></i> Payment Vouchers
+            </a>
+        </li>
+
+        <li class="nav-section-label">HR</li>
         <li class="nav-item">
             <a href="<?= BASE_URL ?>employees" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'employees') !== false ? 'active' : '' ?>">
                 <i class="fas fa-users"></i> Employees
@@ -88,26 +103,25 @@ if (!isset($settings) || !isset($settings['company_logo'])) {
             </a>
         </li>
         <li class="nav-item">
-            <a href="<?= BASE_URL ?>certificates" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'certificates') !== false ? 'active' : '' ?>">
-                <i class="fas fa-certificate"></i> Certificates
-            </a>
-        </li>
-        <li class="nav-item">
             <a href="<?= BASE_URL ?>offerletters" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'offerletters') !== false ? 'active' : '' ?>">
                 <i class="fas fa-file-signature"></i> Offer Letters
             </a>
         </li>
-        <li class="nav-item">
-            <a href="<?= BASE_URL ?>statements" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'statements') !== false ? 'active' : '' ?>">
-                <i class="fas fa-file-contract"></i> Statements
-            </a>
-        </li>
+
+        <li class="nav-section-label">Documents</li>
         <li class="nav-item">
             <a href="<?= BASE_URL ?>contracts" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'contracts') !== false ? 'active' : '' ?>">
                 <i class="fas fa-handshake"></i> Contracts
             </a>
         </li>
+        <li class="nav-item">
+            <a href="<?= BASE_URL ?>certificates" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'certificates') !== false ? 'active' : '' ?>">
+                <i class="fas fa-certificate"></i> Certificates
+            </a>
+        </li>
+
         <?php if ($_SESSION['user_role'] == 'Super Admin'): ?>
+        <li class="nav-section-label">Administration</li>
         <li class="nav-item">
             <a href="<?= BASE_URL ?>users" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'users') !== false ? 'active' : '' ?>">
                 <i class="fas fa-users-cog"></i> User Management
@@ -119,12 +133,14 @@ if (!isset($settings) || !isset($settings['company_logo'])) {
             </a>
         </li>
         <?php endif; ?>
-        <li class="nav-item mt-auto">
-            <a href="<?= BASE_URL ?>auth/logout" class="nav-link text-danger">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </li>
     </ul>
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="<?= BASE_URL ?>auth/logout" class="nav-link text-danger">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
 </nav>
 
 <!-- Main Content Wrapper -->
