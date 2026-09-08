@@ -9,7 +9,7 @@
                     
                     <!-- Top Section -->
                     <div class="row mb-4">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label text-muted">Client / Lead</label>
                             <select name="lead_id" class="form-select bg-light border-0" required>
                                 <option value="">Select a Client...</option>
@@ -20,11 +20,23 @@
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label text-muted">Invoice No</label>
-                            <input type="text" name="invoice_no" class="form-control fw-bold border-0 bg-light" value="<?= $invoice['invoice_no'] ?>" readonly>
+                            <input type="text" name="invoice_no" class="form-control fw-bold border-0 bg-light" value="<?= $invoice['invoice_no'] ?>" <?= ($invoice['is_draft'] ?? 0) ? '' : 'readonly' ?>>
+                            <?php if ($invoice['is_draft'] ?? 0): ?>
+                                <small class="text-muted">Draft number — you can edit this freely</small>
+                            <?php endif; ?>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label text-muted">Invoice Date</label>
+                            <?php if (($_SESSION['user_role'] ?? '') === 'Super Admin'): ?>
+                                <input type="date" name="invoice_date" class="form-control border-0 bg-light" value="<?= date('Y-m-d', strtotime($invoice['created_at'])) ?>" required>
+                                <small class="text-muted">Admin only — changes the statement/report date</small>
+                            <?php else: ?>
+                                <input type="text" class="form-control border-0 bg-light" value="<?= date('d M Y', strtotime($invoice['created_at'])) ?>" disabled>
+                            <?php endif; ?>
+                        </div>
+                        <div class="col-md-3">
                              <label class="form-label text-muted">Due Date</label>
                              <input type="date" name="due_date" class="form-control border-0 bg-light" value="<?= $invoice['due_date'] ?>" required>
                         </div>

@@ -1,11 +1,16 @@
 <div class="row justify-content-center">
     <div class="col-md-10">
         <div class="card border-0 shadow-lg">
-            <div class="card-header bg-white border-bottom-0 pb-0">
-                <h5 class="fw-bold mt-2">Generate New Invoice</h5>
+            <div class="card-header bg-white border-bottom-0 pb-0 d-flex align-items-center gap-2">
+                <h5 class="fw-bold mt-2 mb-0"><?= isset($is_draft) && $is_draft ? 'Create Draft Invoice' : 'Generate New Invoice' ?></h5>
+                <?php if (isset($is_draft) && $is_draft): ?>
+                    <span class="badge bg-secondary ms-2">Draft &mdash; excluded from revenue</span>
+                <?php endif; ?>
             </div>
             <div class="card-body">
                 <form action="<?= BASE_URL ?>invoices/store" method="POST">
+                    <input type="hidden" name="is_draft" value="<?= isset($is_draft) ? (int)$is_draft : 0 ?>">
+                    <input type="hidden" name="quotation_id" id="quotation-id-input" value="">
                     
                     <!-- Load from Quotation -->
                     <?php if (!empty($quotations)): ?>
@@ -38,7 +43,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted">Invoice No</label>
-                            <input type="text" name="invoice_no" class="form-control fw-bold border-0 bg-light" value="<?= $invoice_no ?>" readonly>
+                            <input type="text" name="invoice_no" class="form-control fw-bold border-0 bg-light" value="<?= $invoice_no ?>" <?= (isset($is_draft) && $is_draft) ? '' : 'readonly' ?> placeholder="<?= (isset($is_draft) && $is_draft) ? 'e.g. FINAL-ABC-001' : '' ?>">
                         </div>
                         <div class="col-md-4">
                              <label class="form-label text-muted">Due Date</label>
@@ -126,7 +131,10 @@
 
                     <div class="text-end mt-4">
                         <a href="<?= BASE_URL ?>invoices" class="btn btn-light me-2">Cancel</a>
-                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-paper-plane"></i> Create Invoice</button>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-paper-plane"></i>
+                            <?= isset($is_draft) && $is_draft ? 'Save Draft' : 'Create Invoice' ?>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -268,6 +276,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (quotationSelect) {
         quotationSelect.addEventListener('change', function () {
             const qid = this.value;
+            const qidInput = document.getElementById('quotation-id-input');
+            if (qidInput) qidInput.value = qid;
             if (!qid) return;
 
             const msg = document.getElementById('quotation-load-msg');
