@@ -23,10 +23,51 @@
 
 <!-- Action Bar -->
 <div class="d-flex justify-content-center gap-2 mb-4 no-print">
-    <button onclick="window.print()" class="btn btn-outline-danger"><i class="fas fa-file-pdf me-1"></i> Print / Save PDF</button>
+    <button onclick="printReceipt()" class="btn btn-outline-danger"><i class="fas fa-file-pdf me-1"></i> Print / Save PDF</button>
     <button onclick="downloadPDF()" class="btn btn-primary"><i class="fas fa-download me-1"></i> Download PDF</button>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#currencyModal"><i class="fas fa-exchange-alt me-1"></i> Convert &amp; Export</button>
     <a href="<?= BASE_URL ?>receipts/edit/<?= $receipt['id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-edit me-1"></i> Edit</a>
     <a href="<?= BASE_URL ?>receipts" class="btn btn-light"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<!-- Currency Conversion Modal -->
+<div class="modal fade" id="currencyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-exchange-alt me-2 text-success"></i>Convert &amp; Export</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-0">
+                <p class="text-muted small mb-3">Choose a target currency and enter the exchange rate. All amounts will be converted before export.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Target Currency</label>
+                    <select class="form-select" id="convertCurrency">
+                        <option value="USD" data-symbol="$"        data-label="USD">US Dollar (USD)</option>
+                        <option value="INR" data-symbol="&#8377;"  data-label="INR">Indian Rupee (INR)</option>
+                        <option value="EUR" data-symbol="&#8364;"  data-label="EUR">Euro (EUR)</option>
+                        <option value="GBP" data-symbol="&#163;"   data-label="GBP">British Pound (GBP)</option>
+                        <option value="SAR" data-symbol="SAR "     data-label="SAR">Saudi Riyal (SAR)</option>
+                        <option value="SGD" data-symbol="S$"       data-label="SGD">Singapore Dollar (SGD)</option>
+                        <option value="AED" data-symbol="AED "     data-label="AED">UAE Dirham (AED)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Exchange Rate</label>
+                    <div class="input-group">
+                        <span class="input-group-text text-muted" id="rate-prefix">1 <?= htmlspecialchars($settings['currency_symbol'] ?? 'AED') ?> =</span>
+                        <input type="number" class="form-control" id="exchangeRate" value="1" min="0.0001" step="0.0001" placeholder="e.g. 23.04">
+                        <span class="input-group-text fw-semibold text-success" id="rate-suffix">USD</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 px-4 pt-2">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-secondary me-auto" id="btnResetCurrency"><i class="fas fa-undo me-1"></i>Reset</button>
+                <button type="button" class="btn btn-success px-4" id="btnApplyConvert"><i class="fas fa-file-pdf me-1"></i> Convert &amp; Print PDF</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Receipt Document -->
@@ -98,6 +139,10 @@
                         <td class="text-end pe-0 fw-bold"><?= htmlspecialchars($receipt['receipt_no']) ?></td>
                     </tr>
                     <tr>
+                        <td class="text-muted fw-semibold ps-0">Currency:</td>
+                        <td class="text-end pe-0" id="rec-currency-label"><?= htmlspecialchars($settings['currency_symbol'] ?? 'AED') ?></td>
+                    </tr>
+                    <tr>
                         <td class="text-muted fw-semibold ps-0">Invoice #:</td>
                         <td class="text-end pe-0">
                             <a href="<?= BASE_URL ?>invoices/show/<?= $invoice['id'] ?>" class="text-decoration-none no-print"><?= htmlspecialchars($invoice['invoice_no']) ?></a>
@@ -140,21 +185,21 @@
             <table class="table table-sm table-borderless mb-0" style="font-size:.95rem;">
                 <tr>
                     <td class="text-muted fw-semibold">Invoice Total</td>
-                    <td class="text-end"><?= formatMoney($invoice['grand_total']) ?></td>
+                    <td class="text-end conv-amount" data-amount="<?= $invoice['grand_total'] ?>"><?= formatMoney($invoice['grand_total']) ?></td>
                 </tr>
                 <tr>
                     <td class="text-muted fw-semibold">Total Paid (incl. this)</td>
-                    <td class="text-end text-success"><?= formatMoney($total_paid) ?></td>
+                    <td class="text-end text-success conv-amount" data-amount="<?= $total_paid ?>"><?= formatMoney($total_paid) ?></td>
                 </tr>
                 <?php if ($balance_due > 0): ?>
                 <tr>
                     <td class="text-muted fw-semibold">Balance Due</td>
-                    <td class="text-end text-danger"><?= formatMoney($balance_due) ?></td>
+                    <td class="text-end text-danger conv-amount" data-amount="<?= $balance_due ?>"><?= formatMoney($balance_due) ?></td>
                 </tr>
                 <?php endif; ?>
                 <tr style="border-top: 2px solid #3a3f51;">
                     <td class="fw-bold rec-accent fs-5 pt-2">AMOUNT RECEIVED</td>
-                    <td class="text-end fw-bold rec-accent fs-5 pt-2"><?= formatMoney($receipt['amount_paid']) ?></td>
+                    <td class="text-end fw-bold rec-accent fs-5 pt-2 conv-amount" data-amount="<?= $receipt['amount_paid'] ?>"><?= formatMoney($receipt['amount_paid']) ?></td>
                 </tr>
             </table>
         </div>
@@ -219,6 +264,15 @@
 <script>
 window.jsPDF = window.jspdf.jsPDF;
 
+const receiptPdfName = <?= json_encode(preg_replace('/[^A-Za-z0-9 _-]/', '_', trim(trim($lead['lead_name'] ?: ($lead['company_name'] ?? 'Client')) . '-Receipt-' . $receipt['receipt_no']))) ?>;
+
+function printReceipt() {
+    const prev = document.title;
+    document.title = receiptPdfName;
+    window.addEventListener('afterprint', () => { document.title = prev; }, { once: true });
+    window.print();
+}
+
 function downloadPDF() {
     const element = document.getElementById('receipt-content');
     const buttons = document.querySelectorAll('.no-print');
@@ -244,8 +298,52 @@ function downloadPDF() {
             }
         }
 
-        pdf.save('Receipt_<?= $receipt['receipt_no'] ?>.pdf');
+        pdf.save(receiptPdfName + '.pdf');
         buttons.forEach(b => b.style.display = '');
     });
 }
+
+// ── Convert & Export ────────────────────────────────────────────────────
+const origRecSymbol = <?= json_encode($settings['currency_symbol'] ?? 'AED') ?>;
+let recConverted = false;
+
+function fmtConvertedRec(amount, symbol, decimals) {
+    return symbol + Number(amount).toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const currSel  = document.getElementById('convertCurrency');
+    const rateSufx = document.getElementById('rate-suffix');
+    if (!currSel) return;
+
+    currSel.addEventListener('change', function () {
+        rateSufx.textContent = this.options[this.selectedIndex].dataset.label;
+    });
+
+    document.getElementById('btnApplyConvert').addEventListener('click', function () {
+        const opt    = currSel.options[currSel.selectedIndex];
+        const symbol = opt.dataset.symbol;
+        const label  = opt.dataset.label;
+        const rate   = parseFloat(document.getElementById('exchangeRate').value) || 1;
+
+        document.querySelectorAll('.conv-amount').forEach(el => {
+            const orig = parseFloat(el.dataset.amount) || 0;
+            el.textContent = fmtConvertedRec(orig * rate, symbol, 2);
+        });
+
+        const lbl = document.getElementById('rec-currency-label');
+        if (lbl) lbl.textContent = label + '  (1 ' + origRecSymbol + ' = ' + rate + ' ' + label + ')';
+
+        recConverted = true;
+        bootstrap.Modal.getInstance(document.getElementById('currencyModal')).hide();
+        setTimeout(() => printReceipt(), 350);
+    });
+
+    document.getElementById('btnResetCurrency').addEventListener('click', function () {
+        if (recConverted) location.reload();
+    });
+});
 </script>
