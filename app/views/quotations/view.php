@@ -19,6 +19,15 @@
 .qt-footer-bar { border-top: 1px solid #ddd; padding-top: .55rem; text-align: center; color: #999; font-size: .72rem; }
 .qt-sig-line  { border-top: 1px solid #555; width: 190px; margin-top: 48px; padding-top: 5px; text-align: center; font-size: .82rem; color: #555; }
 
+/* Scope of Work */
+.qt-scope-content              { font-size: .88rem; line-height: 1.55; color: #1f2937; }
+.qt-scope-content p             { margin: 0 0 .6rem; }
+.qt-scope-content ul,
+.qt-scope-content ol            { margin: 0 0 .6rem; padding-left: 1.4rem; }
+.qt-scope-content li            { margin-bottom: .25rem; }
+.qt-scope-content b,
+.qt-scope-content strong        { font-weight: 700; color: #111827; }
+
 /* â”€â”€ Two-column row â€” works on screen AND in print â”€â”€ */
 .qt-two-col       { display: table; width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 10px 0; }
 .qt-col-left,
@@ -70,6 +79,15 @@
     .qt-india-box     { break-inside: avoid; page-break-inside: avoid; }
     .qt-sig-block     { break-inside: avoid; page-break-inside: avoid; }
     .qt-footer-bar    { break-inside: avoid; page-break-inside: avoid; }
+
+    /* Signatures + footer travel together; padding (not margin) survives
+       at the top of a new page, so the block never touches the page edge */
+    .qt-end-block     { break-inside: avoid; page-break-inside: avoid; padding-top: 8mm; }
+    .qt-end-block .qt-sig-block { margin-top: 0 !important; }
+
+    /* Scope of Work: optional section that always starts on a fresh page */
+    .qt-scope-page     { break-before: page; page-break-before: always; padding-top: 8mm; }
+    .qt-scope-content  { orphans: 3; widows: 3; }
     .qt-table thead   { break-after:  avoid; page-break-after:  avoid; }
     .qt-table tbody tr{ break-inside: avoid; page-break-inside: avoid; }
 
@@ -89,6 +107,7 @@
     <button onclick="printClean()" class="btn btn-outline-danger"><i class="fas fa-file-pdf me-1"></i> Save as PDF</button>
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#currencyModal"><i class="fas fa-exchange-alt me-1"></i> Convert &amp; Export</button>
     <a href="<?= BASE_URL ?>quotations/edit/<?= $quotation['id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-edit me-1"></i> Edit</a>
+    <a href="<?= BASE_URL ?>quotations/duplicate/<?= $quotation['id'] ?>" class="btn btn-outline-success"><i class="fas fa-copy me-1"></i> Copy for Another Client</a>
     <a href="<?= BASE_URL ?>quotations" class="btn btn-light"><i class="fas fa-arrow-left me-1"></i> Back</a>
 </div>
 
@@ -168,7 +187,7 @@
                     <?= htmlspecialchars($companyEmail) ?><?php if ($companyPhone): ?> &nbsp;|&nbsp; <?= htmlspecialchars($companyPhone) ?><?php endif; ?>
                 </div>
                 <div style="font-size:.72rem;color:#e8602c;font-weight:600;margin-top:2px;">
-                    Back Office in India: Cochin, Coimbatore, Bangalore, Gujarat
+                    Back Office in India: Cochin, Coimbatore, Bangalore, Surat
                 </div>
             </div>
             </div>
@@ -298,14 +317,21 @@
     </div>
     <?php endif; ?>
 
-    <!-- ===== SIGNATURES ===== -->
+    <!-- ===== SCOPE OF WORK (always starts on its own page) ===== -->
+    <?php if (!empty($quotation['scope_of_work'])): ?>
+    <div class="qt-scope-page">
+        <h6 class="fw-bold mb-3" style="font-size:1.1rem;color:#1a1a2e;"><?= htmlspecialchars($quotation['scope_of_work_title'] ?: 'Scope of Work') ?></h6>
+        <div class="qt-scope-content"><?= $quotation['scope_of_work'] ?></div>
+    </div>
+    <?php endif; ?>
+
+    <!-- ===== SIGNATURES + FOOTER (kept together across page breaks) ===== -->
+    <div class="qt-end-block">
     <div class="qt-sig-block" style="display:table;width:100%;margin-top:2rem;margin-bottom:1rem;">
-        <div style="display:table-cell;width:50%;text-align:center;padding:0 1rem;">
-            <div style="position:relative;display:inline-block;min-height:80px;">
-                <?php if (!empty($settings['company_signature'])): ?>
-                    <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_signature'] ?>" alt="Signature"
-                         style="max-height:60px;max-width:160px;object-fit:contain;display:block;margin:0 auto 4px;">
-                <?php endif; ?>
+        <div style="display:table-cell;width:50%;text-align:center;vertical-align:bottom;padding:0 1rem;">
+            <div style="position:relative;display:inline-block;">
+                <img src="<?= BASE_URL ?>assets/sign.png" alt="Signature"
+                     style="max-height:60px;max-width:160px;object-fit:contain;display:block;margin:0 auto 4px;">
                 <?php if (!empty($settings['company_stamp'])): ?>
                     <img src="<?= BASE_URL ?>public/uploads/<?= $settings['company_stamp'] ?>" alt="Stamp"
                          style="max-height:70px;max-width:70px;object-fit:contain;position:absolute;bottom:18px;right:-10px;opacity:.88;">
@@ -316,8 +342,7 @@
                 <small style="color:#6b7280;"><?= htmlspecialchars($companyName) ?></small>
             </div>
         </div>
-        <div style="display:table-cell;width:50%;text-align:center;padding:0 1rem;">
-            <div style="min-height:80px;"></div>
+        <div style="display:table-cell;width:50%;text-align:center;vertical-align:bottom;padding:0 1rem;">
             <div class="qt-sig-line" style="display:inline-block;">
                 Customer Acceptance<br>
                 <small style="color:#6b7280;"><?= htmlspecialchars($lead['lead_name'] ?: ($lead['company_name'] ?? '')) ?></small>
@@ -338,6 +363,7 @@
             Backoffice Team (India): Cochin, Mangalore, Bangalore, Coimbatore, Gujarat &nbsp;&bull;&nbsp; Contact: +9516 71 7777
         </div>
     </div>
+    </div><!-- /qt-end-block -->
 
 </div>
 
@@ -402,7 +428,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function printClean() {
     const prev = document.title;
-    document.title = '';
+    const pdfFileName = <?= json_encode(preg_replace('/[^A-Za-z0-9 _-]/', '_', trim(trim($lead['lead_name'] ?: ($lead['company_name'] ?? 'Client')) . '-Quotation-' . ($quotation['quotation_no'] ?? '')))) ?>;
+    document.title = pdfFileName;
     window.addEventListener('afterprint', () => { document.title = prev; }, { once: true });
     window.print();
 }

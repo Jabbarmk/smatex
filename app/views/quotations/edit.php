@@ -51,7 +51,7 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="small text-muted">Description</label>
-                                <input type="text" name="description[]" class="form-control" value="<?= htmlspecialchars($item['description']) ?>">
+                                <textarea name="description[]" class="form-control auto-grow" rows="1" placeholder="Details..." style="resize:none;overflow:hidden;min-height:38px;"><?= htmlspecialchars($item['description']) ?></textarea>
                             </div>
                             <div class="col-md-1">
                                 <label class="small text-muted">Qty</label>
@@ -73,7 +73,7 @@
                                 <input class="form-control" list="revenueTypes" name="item_name[]" placeholder="Select or type..." required>
                              </div>
                              <div class="col-md-4">
-                                <input type="text" name="description[]" class="form-control" placeholder="Details...">
+                                <textarea name="description[]" class="form-control auto-grow" rows="1" placeholder="Details..." style="resize:none;overflow:hidden;min-height:38px;"></textarea>
                              </div>
                              <div class="col-md-1">
                                 <input type="number" name="qty[]" class="form-control" value="1" min="1" onchange="calcTotal()">
@@ -147,6 +147,28 @@
                         <textarea name="terms_conditions" id="terms_conditions" class="form-control bg-light border-0" rows="7"><?= htmlspecialchars($quotation['terms_conditions'] ?? '') ?></textarea>
                     </div>
 
+                    <!-- Scope of Work -->
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                            <label class="form-label fw-bold mb-0">Scope of Work <span class="text-muted fw-normal small">(optional — always printed on its own page)</span></label>
+                        </div>
+                        <input type="text" name="scope_of_work_title" class="form-control fw-semibold mb-2" style="max-width:320px;" value="<?= htmlspecialchars($quotation['scope_of_work_title'] ?? 'Scope of Work') ?>" placeholder="Section title">
+                        <div class="border rounded">
+                            <div class="d-flex flex-wrap gap-1 p-2 bg-light border-bottom" id="scopeToolbar">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                                <span class="vr mx-1"></span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                                <span class="vr mx-1"></span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="removeFormat" title="Clear Formatting"><i class="fas fa-eraser"></i></button>
+                            </div>
+                            <div id="scopeEditor" class="form-control" contenteditable="true" style="min-height:220px;max-height:520px;overflow-y:auto;border:none;border-radius:0 0 .375rem .375rem;" data-placeholder="Paste or type the scope of work here — bold text and bullet points will be preserved..."><?= $quotation['scope_of_work'] ?? '' ?></div>
+                        </div>
+                        <textarea name="scope_of_work" id="scope_of_work_hidden" style="display:none"></textarea>
+                    </div>
+
                     <div class="text-end mt-4">
                         <a href="<?= BASE_URL ?>quotations" class="btn btn-light me-2">Cancel</a>
                         <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save"></i> Update Quotation</button>
@@ -185,15 +207,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const rows = document.querySelectorAll('.item-row');
         if (rows.length > 0) {
             const row = rows[0].cloneNode(true);
-            row.querySelectorAll('input').forEach(i => i.value = '');
+            row.querySelectorAll('input, textarea').forEach(i => i.value = '');
             row.querySelector('input[name="qty[]"]').value = 1;
             row.querySelector('input[name="unit_price[]"]').value = 0;
+            const ta = row.querySelector('textarea.auto-grow');
+            if (ta) ta.style.height = '';
             container.appendChild(row);
         }
         bindEvents();
     });
 
+    function autoGrow(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+
     function bindEvents() {
+        document.querySelectorAll('textarea.auto-grow').forEach(ta => {
+            ta.oninput = function() { autoGrow(this); };
+            autoGrow(ta);
+        });
         document.querySelectorAll('.remove-row').forEach(btn => {
             btn.onclick = function() {
                 if(document.querySelectorAll('.item-row').length > 1) {
@@ -260,5 +293,68 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     // ─────────────────────────────────────────────────────────────────
+
+    // ── Scope of Work rich-text editor ──────────────────────────────
+    initRichEditor('scopeEditor', 'scopeToolbar', 'scope_of_work_hidden');
 });
+</script>
+<style>
+#scopeEditor:empty:before { content: attr(data-placeholder); color: #adb5bd; }
+#scopeEditor ul, #scopeEditor ol { padding-left: 1.4rem; margin-bottom: .5rem; }
+#scopeEditor p { margin-bottom: .5rem; }
+</style>
+<script>
+function initRichEditor(editorId, toolbarId, hiddenId) {
+    const editor  = document.getElementById(editorId);
+    const toolbar = document.getElementById(toolbarId);
+    const hidden  = document.getElementById(hiddenId);
+    const form    = editor.closest('form');
+    const allowedTags = ['B','STRONG','I','EM','U','UL','OL','LI','P','BR','DIV'];
+
+    toolbar.querySelectorAll('button[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            editor.focus();
+            document.execCommand(this.dataset.cmd, false, null);
+        });
+    });
+
+    function cleanPastedHtml(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        (function walk(node) {
+            [...node.childNodes].forEach(child => {
+                if (child.nodeType === 1) {
+                    walk(child);
+                    if (allowedTags.includes(child.tagName)) {
+                        while (child.attributes.length) child.removeAttribute(child.attributes[0].name);
+                    } else {
+                        while (child.firstChild) node.insertBefore(child.firstChild, child);
+                        node.removeChild(child);
+                    }
+                } else if (child.nodeType !== 3) {
+                    node.removeChild(child);
+                }
+            });
+        })(tmp);
+        return tmp.innerHTML;
+    }
+
+    editor.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const cd = e.clipboardData || window.clipboardData;
+        const html = cd.getData('text/html');
+        const text = cd.getData('text/plain');
+        if (html) {
+            document.execCommand('insertHTML', false, cleanPastedHtml(html));
+        } else {
+            document.execCommand('insertText', false, text);
+        }
+    });
+
+    if (form) {
+        form.addEventListener('submit', function() {
+            hidden.value = editor.innerHTML.trim();
+        });
+    }
+}
 </script>

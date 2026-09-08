@@ -2,7 +2,7 @@
     <div class="col-md-10">
         <div class="card border-0 shadow-lg">
             <div class="card-header bg-white border-bottom-0 pb-0">
-                <h5 class="fw-bold mt-2">Generate New Quotation</h5>
+                <h5 class="fw-bold mt-2"><?= isset($prefill) ? 'Copy Quotation — Select New Client' : 'Generate New Quotation' ?></h5>
             </div>
             <div class="card-body">
                 <form action="<?= BASE_URL ?>quotations/store" method="POST">
@@ -14,7 +14,7 @@
                             <select name="lead_id" class="form-select bg-light border-0" required>
                                 <option value="">Select a Client...</option>
                                 <?php foreach ($leads as $lead): ?>
-                                    <option value="<?= $lead['id'] ?>"><?= $lead['lead_name'] ?> (<?= $lead['company_name'] ?>)</option>
+                                    <option value="<?= $lead['id'] ?>" <?= (isset($prefill) && $prefill['lead_id'] == $lead['id']) ? 'selected' : '' ?>><?= $lead['lead_name'] ?> (<?= $lead['company_name'] ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -24,44 +24,47 @@
                         </div>
                         <div class="col-md-4">
                              <label class="form-label text-muted">Valid Until</label>
-                             <input type="date" name="valid_until" class="form-control border-0 bg-light" required>
+                             <input type="date" name="valid_until" class="form-control border-0 bg-light" value="<?= isset($prefill) ? htmlspecialchars($prefill['valid_until']) : '' ?>" required>
                         </div>
                     </div>
 
                     <!-- Items Section -->
                     <h6 class="fw-bold border-bottom pb-2 mb-3">Quotation Items</h6>
+                    <datalist id="revenueTypes">
+                        <option value="SmartApp Registration">
+                        <option value="SmartApp Ads">
+                        <option value="App Development">
+                        <option value="Website Design & Development">
+                        <option value="Social Media Marketing">
+                        <option value="Video Production">
+                        <option value="SEO Services">
+                        <option value="Consulting">
+                    </datalist>
+                    <?php $prefillItems = isset($prefill) ? $prefill['items'] : [['item_name'=>'','description'=>'','qty'=>1,'unit_price'=>0]]; ?>
                     <div id="items-container">
+                        <?php foreach ($prefillItems as $pItem): ?>
                         <div class="row g-2 mb-2 item-row">
                             <div class="col-md-4">
                                 <label class="small text-muted">Service / Item</label>
-                                <input class="form-control" list="revenueTypes" name="item_name[]" placeholder="Select or type..." required>
-                                <datalist id="revenueTypes">
-                                    <option value="SmartApp Registration">
-                                    <option value="SmartApp Ads">
-                                    <option value="App Development">
-                                    <option value="Website Design & Development">
-                                    <option value="Social Media Marketing">
-                                    <option value="Video Production">
-                                    <option value="SEO Services">
-                                    <option value="Consulting">
-                                </datalist>
+                                <input class="form-control" list="revenueTypes" name="item_name[]" placeholder="Select or type..." value="<?= htmlspecialchars($pItem['item_name'] ?? '') ?>" required>
                             </div>
                             <div class="col-md-4">
                                 <label class="small text-muted">Description</label>
-                                <input type="text" name="description[]" class="form-control" placeholder="Details...">
+                                <textarea name="description[]" class="form-control" placeholder="Details..." rows="3" style="resize:vertical;min-height:72px;"><?= htmlspecialchars($pItem['description'] ?? '') ?></textarea>
                             </div>
                             <div class="col-md-1">
                                 <label class="small text-muted">Qty</label>
-                                <input type="number" name="qty[]" class="form-control" value="1" min="1" onchange="calcTotal()">
+                                <input type="number" name="qty[]" class="form-control" value="<?= htmlspecialchars($pItem['qty'] ?? 1) ?>" min="1" onchange="calcTotal()">
                             </div>
                             <div class="col-md-2">
                                 <label class="small text-muted">Price</label>
-                                <input type="number" name="unit_price[]" class="form-control" value="0" min="0" step="0.01" onchange="calcTotal()">
+                                <input type="number" name="unit_price[]" class="form-control" value="<?= htmlspecialchars($pItem['unit_price'] ?? 0) ?>" min="0" step="0.01" onchange="calcTotal()">
                             </div>
                             <div class="col-md-1 d-flex align-items-end">
                                 <button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="fas fa-times"></i></button>
                             </div>
                         </div>
+                        <?php endforeach; ?>
                     </div>
                     
                     <button type="button" class="btn btn-light btn-sm mt-2" id="add-row"><i class="fas fa-plus"></i> Add Item</button>
@@ -70,7 +73,7 @@
                     <div class="row mt-4 align-items-end justify-content-between">
                         <div class="col-md-4 d-flex align-items-center">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="apply_tax" id="applyTax" checked>
+                                <input class="form-check-input" type="checkbox" name="apply_tax" id="applyTax" <?= (!isset($prefill) || $prefill['apply_tax']) ? 'checked' : '' ?>>
                                 <label class="form-check-label fw-semibold" for="applyTax">
                                     Apply Tax / VAT <span class="text-muted fw-normal">(<?= $tax_percentage ?>%)</span>
                                 </label>
@@ -106,7 +109,29 @@
                                 <button type="button" class="btn btn-sm btn-outline-danger tc-template" data-tpl="clear">Clear</button>
                             </div>
                         </div>
-                        <textarea name="terms_conditions" id="terms_conditions" class="form-control bg-light border-0" rows="7" placeholder="Select a template above or type your own terms and conditions..."></textarea>
+                        <textarea name="terms_conditions" id="terms_conditions" class="form-control bg-light border-0" rows="7" placeholder="Select a template above or type your own terms and conditions..."><?= isset($prefill) ? htmlspecialchars($prefill['terms_conditions']) : '' ?></textarea>
+                    </div>
+
+                    <!-- Scope of Work -->
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                            <label class="form-label fw-bold mb-0">Scope of Work <span class="text-muted fw-normal small">(optional — always printed on its own page)</span></label>
+                        </div>
+                        <input type="text" name="scope_of_work_title" class="form-control fw-semibold mb-2" style="max-width:320px;" value="<?= isset($prefill) ? htmlspecialchars($prefill['scope_of_work_title']) : 'Scope of Work' ?>" placeholder="Section title">
+                        <div class="border rounded">
+                            <div class="d-flex flex-wrap gap-1 p-2 bg-light border-bottom" id="scopeToolbar">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                                <span class="vr mx-1"></span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                                <span class="vr mx-1"></span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-cmd="removeFormat" title="Clear Formatting"><i class="fas fa-eraser"></i></button>
+                            </div>
+                            <div id="scopeEditor" class="form-control" contenteditable="true" style="min-height:220px;max-height:520px;overflow-y:auto;border:none;border-radius:0 0 .375rem .375rem;" data-placeholder="Paste or type the scope of work here — bold text and bullet points will be preserved..."><?= isset($prefill) ? $prefill['scope_of_work'] : '' ?></div>
+                        </div>
+                        <textarea name="scope_of_work" id="scope_of_work_hidden" style="display:none"></textarea>
                     </div>
 
                     <div class="text-end mt-4">
@@ -148,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const rows = document.querySelectorAll('.item-row');
         if(rows.length > 0) {
             const row = rows[0].cloneNode(true);
-            row.querySelectorAll('input').forEach(i => i.value = '');
+            row.querySelectorAll('input, textarea').forEach(i => i.value = '');
             const qtyInput = row.querySelector('input[name="qty[]"]');
             const priceInput = row.querySelector('input[name="unit_price[]"]');
             if(qtyInput) qtyInput.value = 1;
@@ -200,6 +225,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     bindEvents();
+    <?php if (isset($prefill)): ?>
+    calcTotal();
+    <?php endif; ?>
 
     // ── Terms & Conditions Templates ──────────────────────────────────
     const tcTemplates = {
@@ -227,5 +255,68 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     // ─────────────────────────────────────────────────────────────────
+
+    // ── Scope of Work rich-text editor ──────────────────────────────
+    initRichEditor('scopeEditor', 'scopeToolbar', 'scope_of_work_hidden');
 });
+</script>
+<style>
+#scopeEditor:empty:before { content: attr(data-placeholder); color: #adb5bd; }
+#scopeEditor ul, #scopeEditor ol { padding-left: 1.4rem; margin-bottom: .5rem; }
+#scopeEditor p { margin-bottom: .5rem; }
+</style>
+<script>
+function initRichEditor(editorId, toolbarId, hiddenId) {
+    const editor  = document.getElementById(editorId);
+    const toolbar = document.getElementById(toolbarId);
+    const hidden  = document.getElementById(hiddenId);
+    const form    = editor.closest('form');
+    const allowedTags = ['B','STRONG','I','EM','U','UL','OL','LI','P','BR','DIV'];
+
+    toolbar.querySelectorAll('button[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            editor.focus();
+            document.execCommand(this.dataset.cmd, false, null);
+        });
+    });
+
+    function cleanPastedHtml(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        (function walk(node) {
+            [...node.childNodes].forEach(child => {
+                if (child.nodeType === 1) {
+                    walk(child);
+                    if (allowedTags.includes(child.tagName)) {
+                        while (child.attributes.length) child.removeAttribute(child.attributes[0].name);
+                    } else {
+                        while (child.firstChild) node.insertBefore(child.firstChild, child);
+                        node.removeChild(child);
+                    }
+                } else if (child.nodeType !== 3) {
+                    node.removeChild(child);
+                }
+            });
+        })(tmp);
+        return tmp.innerHTML;
+    }
+
+    editor.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const cd = e.clipboardData || window.clipboardData;
+        const html = cd.getData('text/html');
+        const text = cd.getData('text/plain');
+        if (html) {
+            document.execCommand('insertHTML', false, cleanPastedHtml(html));
+        } else {
+            document.execCommand('insertText', false, text);
+        }
+    });
+
+    if (form) {
+        form.addEventListener('submit', function() {
+            hidden.value = editor.innerHTML.trim();
+        });
+    }
+}
 </script>

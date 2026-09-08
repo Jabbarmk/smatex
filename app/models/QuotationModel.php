@@ -13,15 +13,15 @@ class QuotationModel extends Model {
     }
 
     public function create($data) {
-        $sql = "INSERT INTO quotations (quotation_no, lead_id, subtotal, tax_percentage, vat_total, grand_total, valid_until, status, terms_conditions, created_by)
-                VALUES (:quotation_no, :lead_id, :subtotal, :tax_percentage, :vat_total, :grand_total, :valid_until, :status, :terms_conditions, :created_by)";
+        $sql = "INSERT INTO quotations (quotation_no, lead_id, subtotal, tax_percentage, vat_total, grand_total, valid_until, status, terms_conditions, scope_of_work_title, scope_of_work, created_by)
+                VALUES (:quotation_no, :lead_id, :subtotal, :tax_percentage, :vat_total, :grand_total, :valid_until, :status, :terms_conditions, :scope_of_work_title, :scope_of_work, :created_by)";
         $stmt = $this->db->prepare($sql);
         if ($stmt->execute($data)) return $this->db->lastInsertId();
         return false;
     }
 
     public function update($id, $data) {
-        $sql = "UPDATE quotations SET lead_id=:lead_id, subtotal=:subtotal, tax_percentage=:tax_percentage, vat_total=:vat_total, grand_total=:grand_total, valid_until=:valid_until, status=:status, terms_conditions=:terms_conditions WHERE id=:id";
+        $sql = "UPDATE quotations SET lead_id=:lead_id, subtotal=:subtotal, tax_percentage=:tax_percentage, vat_total=:vat_total, grand_total=:grand_total, valid_until=:valid_until, status=:status, terms_conditions=:terms_conditions, scope_of_work_title=:scope_of_work_title, scope_of_work=:scope_of_work WHERE id=:id";
         $data['id'] = $id;
         return $this->db->prepare($sql)->execute($data);
     }

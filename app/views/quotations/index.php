@@ -61,6 +61,7 @@
                         <td>
                             <a href="<?= BASE_URL ?>quotations/show/<?= $quote['id'] ?>" class="btn btn-sm btn-light" title="View"><i class="fas fa-eye"></i></a>
                             <a href="<?= BASE_URL ?>quotations/edit/<?= $quote['id'] ?>" class="btn btn-sm btn-light text-primary" title="Edit"><i class="fas fa-edit"></i></a>
+                            <a href="<?= BASE_URL ?>quotations/duplicate/<?= $quote['id'] ?>" class="btn btn-sm btn-light text-success" title="Copy for another client"><i class="fas fa-copy"></i></a>
                             <a href="<?= BASE_URL ?>quotations/delete/<?= $quote['id'] ?>" class="btn btn-sm btn-light text-danger" title="Delete" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
                         </td>
                     </tr>

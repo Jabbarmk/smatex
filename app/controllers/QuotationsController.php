@@ -3,6 +3,7 @@ class QuotationsController extends Controller {
 
     public function __construct() {
         $this->requireLogin();
+        require_once 'app/helpers/html.php';
     }
 
     public function index() {
@@ -70,16 +71,18 @@ class QuotationsController extends Controller {
             $grand_total = $subtotal + $vat_total;
 
             $data = [
-                'quotation_no'     => $_POST['quotation_no'],
-                'lead_id'          => $_POST['lead_id'],
-                'subtotal'         => $subtotal,
-                'tax_percentage'   => $taxPct,
-                'vat_total'        => $vat_total,
-                'grand_total'      => $grand_total,
-                'valid_until'      => $_POST['valid_until'],
-                'status'           => 'Draft',
-                'terms_conditions' => $_POST['terms_conditions'] ?? null,
-                'created_by'       => $_SESSION['user_id']
+                'quotation_no'        => $_POST['quotation_no'],
+                'lead_id'             => $_POST['lead_id'],
+                'subtotal'            => $subtotal,
+                'tax_percentage'      => $taxPct,
+                'vat_total'           => $vat_total,
+                'grand_total'         => $grand_total,
+                'valid_until'         => $_POST['valid_until'],
+                'status'              => 'Draft',
+                'terms_conditions'    => $_POST['terms_conditions'] ?? null,
+                'scope_of_work_title' => trim($_POST['scope_of_work_title'] ?? '') !== '' ? trim($_POST['scope_of_work_title']) : 'Scope of Work',
+                'scope_of_work'       => sanitizeRichText($_POST['scope_of_work'] ?? null),
+                'created_by'          => $_SESSION['user_id']
             ];
 
             $quotation_id = $quotationModel->create($data);
@@ -91,6 +94,42 @@ class QuotationsController extends Controller {
                 echo "Error generating quotation";
             }
         }
+    }
+
+    public function duplicate($id) {
+        require_once 'app/models/QuotationModel.php';
+        require_once 'app/models/LeadModel.php';
+        require_once 'app/models/SettingsModel.php';
+
+        $quotationModel = new QuotationModel();
+        $leadModel      = new LeadModel();
+        $settingsModel  = new SettingsModel();
+
+        $source = $quotationModel->find($id);
+        if (!$source) $this->redirect('quotations');
+
+        $items    = $quotationModel->getItems($id);
+        $leads    = $leadModel->getAllWithSalesManager();
+        $settings = $settingsModel->getAllSettings();
+
+        $quotationNo = 'QT-' . date('Y') . '-' . rand(1000, 9999);
+
+        $this->view('quotations/create', [
+            'leads'           => $leads,
+            'quotation_no'    => $quotationNo,
+            'currency_symbol' => $settings['currency_symbol'] ?? '$',
+            'tax_percentage'  => $settings['tax_percentage'] ?? 5,
+            'title'           => 'Copy Quotation',
+            'prefill'         => [
+                'lead_id'             => $source['lead_id'],
+                'valid_until'         => $source['valid_until'],
+                'terms_conditions'    => $source['terms_conditions'] ?? '',
+                'scope_of_work_title' => $source['scope_of_work_title'] ?? 'Scope of Work',
+                'scope_of_work'       => $source['scope_of_work'] ?? '',
+                'apply_tax'           => ($source['tax_percentage'] ?? 0) > 0,
+                'items'               => $items,
+            ],
+        ]);
     }
 
     public function edit($id) {
@@ -153,14 +192,16 @@ class QuotationsController extends Controller {
             $grand_total = $subtotal + $vat_total;
 
             $data = [
-                'lead_id'          => $_POST['lead_id'],
-                'subtotal'         => $subtotal,
-                'tax_percentage'   => $taxPct,
-                'vat_total'        => $vat_total,
-                'grand_total'      => $grand_total,
-                'valid_until'      => $_POST['valid_until'],
-                'status'           => $_POST['status'],
-                'terms_conditions' => $_POST['terms_conditions'] ?? null
+                'lead_id'             => $_POST['lead_id'],
+                'subtotal'            => $subtotal,
+                'tax_percentage'      => $taxPct,
+                'vat_total'           => $vat_total,
+                'grand_total'         => $grand_total,
+                'valid_until'         => $_POST['valid_until'],
+                'status'              => $_POST['status'],
+                'terms_conditions'    => $_POST['terms_conditions'] ?? null,
+                'scope_of_work_title' => trim($_POST['scope_of_work_title'] ?? '') !== '' ? trim($_POST['scope_of_work_title']) : 'Scope of Work',
+                'scope_of_work'       => sanitizeRichText($_POST['scope_of_work'] ?? null)
             ];
 
             if ($quotationModel->update($id, $data)) {
