@@ -18,6 +18,56 @@ class StatementsController extends Controller {
             'currency_symbol' => $settings['currency_symbol'] ?? 'AED',
             'salesmen'        => $model->getAllSalesmen(),
             'clients'         => $model->getAllClients(),
+            'projects'        => $model->getAllProjects(),
+        ]);
+    }
+
+    /** Projects Statement: pick approved quotation (project) → view statement */
+    public function project($id = null) {
+        // Handle form POST (picker)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = (int)($_POST['project_id'] ?? 0);
+            if (!$id) $this->redirect('statements');
+            $this->redirect('statements/project/' . $id);
+        }
+
+        if (!$id) $this->redirect('statements');
+
+        require_once 'app/models/StatementsModel.php';
+        require_once 'app/models/SettingsModel.php';
+
+        $model    = new StatementsModel();
+        $settings = (new SettingsModel())->getAllSettings();
+
+        $project = $model->getProjectById($id);
+        if (!$project) $this->redirect('statements');
+
+        $invoices = $model->getProjectInvoices($id);
+        $payments = $model->getProjectPayments($id);
+
+        // Totals
+        $projectTotal    = (float)$project['grand_total'];
+        $totalInvoiced   = array_sum(array_column($invoices, 'grand_total'));
+        $totalReceived   = array_sum(array_column($invoices, 'amount_received'));
+        $invoiceBalance  = $totalInvoiced - $totalReceived;
+        $totalBalanceDue = $projectTotal - $totalReceived;
+        $paidCount       = count(array_filter($invoices, fn($r) => $r['invoice_status'] === 'Paid'));
+        $unpaidCount     = count($invoices) - $paidCount;
+
+        $this->view('statements/project', [
+            'title'             => 'Project Statement — ' . $project['quotation_no'],
+            'currency_symbol'   => $settings['currency_symbol'] ?? 'AED',
+            'company_name'      => $settings['company_name'] ?? '',
+            'project'           => $project,
+            'invoices'          => $invoices,
+            'payments'          => $payments,
+            'project_total'     => $projectTotal,
+            'total_invoiced'    => $totalInvoiced,
+            'total_received'    => $totalReceived,
+            'invoice_balance'   => $invoiceBalance,
+            'total_balance_due' => $totalBalanceDue,
+            'paid_count'        => $paidCount,
+            'unpaid_count'      => $unpaidCount,
         ]);
     }
 

@@ -6,7 +6,7 @@
 
 <div class="mb-4">
     <h4 class="fw-bold mb-1">Statements</h4>
-    <p class="text-muted small">Generate a Sales Statement by salesman, or a Client Statement by client.</p>
+    <p class="text-muted small">Generate a Sales Statement by salesman, a Client Statement by client, or a Project Statement by approved quotation.</p>
 </div>
 
 <div class="row g-4">
@@ -28,7 +28,7 @@
                 <form method="POST" action="<?= BASE_URL ?>statements/salesman">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Select Salesman</label>
-                        <select name="salesman_id" class="form-select" required>
+                        <select name="salesman_id" class="form-select searchable-select" required>
                             <option value="">— Choose a salesman —</option>
                             <?php foreach ($salesmen as $s): ?>
                             <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?> (<?= $s['role'] ?>)</option>
@@ -66,7 +66,7 @@
                 <form method="POST" action="<?= BASE_URL ?>statements/client">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Select Client</label>
-                        <select name="client_id" class="form-select" required id="clientSelect">
+                        <select name="client_id" class="form-select searchable-select" required id="clientSelect">
                             <option value="">— Choose a client —</option>
                             <?php foreach ($clients as $c): ?>
                             <option value="<?= $c['id'] ?>">
@@ -90,9 +90,54 @@
         </div>
     </div>
 
+    <!-- ===== PROJECTS STATEMENT ===== -->
+    <div class="col-md-6">
+        <div class="card stmt-pick-card shadow-sm h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="stmt-pick-icon" style="background:#eef2ff;">
+                        <i class="fas fa-diagram-project fa-project-diagram" style="color:#6366f1;"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Projects Statement</h5>
+                        <small class="text-muted">Payments &amp; balance due for an approved project</small>
+                    </div>
+                </div>
+
+                <form method="POST" action="<?= BASE_URL ?>statements/project">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Project (Approved Quotation)</label>
+                        <select name="project_id" class="form-select searchable-select" required>
+                            <option value="">&mdash; Choose a project &mdash;</option>
+                            <?php foreach ($projects as $p): ?>
+                            <option value="<?= $p['id'] ?>">
+                                <?= htmlspecialchars($p['quotation_no']) ?> &mdash;
+                                <?= htmlspecialchars($p['company_name'] ?: $p['lead_name']) ?>
+                                (<?= formatMoney($p['grand_total']) ?>)
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if (empty($projects)): ?>
+                        <small class="text-muted">No approved quotations yet &mdash; approve a quotation to see it here.</small>
+                        <?php endif; ?>
+                    </div>
+                    <button type="submit" class="btn w-100 text-white" style="background:#6366f1;" <?= empty($projects) ? 'disabled' : '' ?>>
+                        <i class="fas fa-file-alt me-2"></i>Generate Project Statement
+                    </button>
+                </form>
+
+                <hr class="my-4">
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Shows the approved project total, all invoices raised against it, every payment received, and the total balance due.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== PAYMENT VOUCHER STATEMENT ===== -->
-    <div class="col-12">
-        <div class="card stmt-pick-card shadow-sm">
+    <div class="col-md-6">
+        <div class="card stmt-pick-card shadow-sm h-100">
             <div class="card-body p-4">
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <div class="stmt-pick-icon" style="background:#fff7ed;">
@@ -105,28 +150,24 @@
                 </div>
 
                 <form method="POST" action="<?= BASE_URL ?>statements/voucher">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-8">
-                            <label class="form-label fw-semibold">Select Client</label>
-                            <select name="client_id" class="form-select" required>
-                                <option value="">— Choose a client —</option>
-                                <?php foreach ($clients as $c): ?>
-                                <option value="<?= $c['id'] ?>">
-                                    <?= htmlspecialchars($c['company_name'] ?: $c['lead_name']) ?>
-                                    <?php if ($c['company_name'] && $c['lead_name'] !== $c['company_name']): ?> — <?= htmlspecialchars($c['lead_name']) ?><?php endif; ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn w-100" style="background:#e8602c; color:#fff;">
-                                <i class="fas fa-file-alt me-2"></i>Generate Voucher Statement
-                            </button>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Client</label>
+                        <select name="client_id" class="form-select searchable-select" required>
+                            <option value="">— Choose a client —</option>
+                            <?php foreach ($clients as $c): ?>
+                            <option value="<?= $c['id'] ?>">
+                                <?= htmlspecialchars($c['company_name'] ?: $c['lead_name']) ?>
+                                <?php if ($c['company_name'] && $c['lead_name'] !== $c['company_name']): ?> — <?= htmlspecialchars($c['lead_name']) ?><?php endif; ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
+                    <button type="submit" class="btn w-100" style="background:#e8602c; color:#fff;">
+                        <i class="fas fa-file-alt me-2"></i>Generate Voucher Statement
+                    </button>
                 </form>
 
-                <hr class="my-3">
+                <hr class="my-4">
                 <p class="text-muted small mb-0">
                     <i class="fas fa-info-circle me-1"></i>
                     Shows all payment vouchers issued for the selected client with voucher number, date, mode, invoices covered, and total paid.

@@ -29,6 +29,87 @@ class StatementsModel extends Model {
         ")->fetchAll();
     }
 
+    /** All approved quotations (projects) for the dropdown — with client info */
+    public function getAllProjects() {
+        return $this->db->query("
+            SELECT
+                q.id,
+                q.quotation_no,
+                q.grand_total,
+                q.created_at,
+                l.lead_name,
+                l.company_name
+            FROM quotations q
+            JOIN leads l ON l.id = q.lead_id
+            WHERE q.status = 'Approved'
+            ORDER BY q.created_at DESC
+        ")->fetchAll();
+    }
+
+    /** Project (approved quotation) header info with client + salesman */
+    public function getProjectById($id) {
+        $stmt = $this->db->prepare("
+            SELECT
+                q.*,
+                l.lead_name,
+                l.company_name,
+                l.phone,
+                l.email,
+                l.emirates,
+                u.name AS salesman_name
+            FROM quotations q
+            JOIN leads l ON l.id = q.lead_id
+            LEFT JOIN users u ON u.id = l.sales_manager_id
+            WHERE q.id = :id AND q.status = 'Approved'
+        ");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch();
+    }
+
+    /**
+     * Project Statement: all invoices raised against an approved quotation
+     * Returns: invoice_no, grand_total, status, due_date, created_at, amount_received, balance_due
+     */
+    public function getProjectInvoices($quotation_id) {
+        $stmt = $this->db->prepare("
+            SELECT
+                i.id            AS invoice_id,
+                i.invoice_no,
+                i.grand_total,
+                i.status        AS invoice_status,
+                i.due_date,
+                i.created_at,
+                COALESCE(SUM(r.amount_paid), 0) AS amount_received,
+                (i.grand_total - COALESCE(SUM(r.amount_paid), 0)) AS balance_due
+            FROM invoices i
+            LEFT JOIN receipts r ON r.invoice_id = i.id
+            WHERE i.quotation_id = :quotation_id AND i.is_draft = 0
+            GROUP BY i.id, i.invoice_no, i.grand_total, i.status, i.due_date, i.created_at
+            ORDER BY i.created_at ASC
+        ");
+        $stmt->execute(['quotation_id' => $quotation_id]);
+        return $stmt->fetchAll();
+    }
+
+    /** Payment statement: all receipts against the project's invoices */
+    public function getProjectPayments($quotation_id) {
+        $stmt = $this->db->prepare("
+            SELECT
+                r.receipt_no,
+                r.payment_date,
+                r.amount_paid,
+                r.payment_mode,
+                r.reference_number,
+                i.invoice_no
+            FROM receipts r
+            JOIN invoices i ON i.id = r.invoice_id
+            WHERE i.quotation_id = :quotation_id AND i.is_draft = 0
+            ORDER BY r.payment_date ASC, r.id ASC
+        ");
+        $stmt->execute(['quotation_id' => $quotation_id]);
+        return $stmt->fetchAll();
+    }
+
     /** Salesman info */
     public function getSalesmanById($id) {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :id");
@@ -68,7 +149,7 @@ class StatementsModel extends Model {
             FROM leads l
             JOIN invoices i ON i.lead_id = l.id
             LEFT JOIN receipts r ON r.invoice_id = i.id
-            WHERE l.sales_manager_id = :salesman_id
+            WHERE l.sales_manager_id = :salesman_id AND i.is_draft = 0
             GROUP BY i.id, l.lead_name, l.company_name, l.emirates,
                      i.invoice_no, i.grand_total, i.status, i.due_date, i.created_at
             ORDER BY i.created_at ASC
@@ -94,7 +175,7 @@ class StatementsModel extends Model {
                 (i.grand_total - COALESCE(SUM(r.amount_paid), 0)) AS balance_due
             FROM invoices i
             LEFT JOIN receipts r ON r.invoice_id = i.id
-            WHERE i.lead_id = :lead_id
+            WHERE i.lead_id = :lead_id AND i.is_draft = 0
             GROUP BY i.id, i.invoice_no, i.grand_total, i.status, i.due_date, i.created_at
             ORDER BY i.created_at ASC
         ");
